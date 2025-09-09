@@ -5,7 +5,7 @@
       "name": "Run prod debug",
       "type": "dart",
       "request": "launch",
-      "program": "lib/main.dart",
+      "program": "lib/core/entry_points/main_prod.dart",
       "cwd": "${workspaceFolder}",
       "toolArgs": [
         "--dart-define=FLAVOR=prod"
@@ -15,7 +15,7 @@
       "name": "Run dev debug",
       "type": "dart",
       "request": "launch",
-      "program": "lib/main.dart",
+      "program": "lib/core/entry_points/main_dev.dart",
       "cwd": "${workspaceFolder}",
       "toolArgs": [
         "--dart-define=FLAVOR=dev"
