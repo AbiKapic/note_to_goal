@@ -1,0 +1,46 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run prod debug",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "cwd": "${workspaceFolder}",
+      "toolArgs": [
+        "--dart-define=FLAVOR=prod"
+      ]
+    },
+    {
+      "name": "Run dev debug",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "cwd": "${workspaceFolder}",
+      "toolArgs": [
+        "--dart-define=FLAVOR=dev"
+      ]
+    },
+    {
+      "name": "FVM Build Runner (delete conflicting outputs)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "fvm dart run build_runner build --delete-conflicting-outputs",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "FVM Flutter Clean",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "fvm flutter clean",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "FVM Flutter Pub Get",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "fvm flutter pub get",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
