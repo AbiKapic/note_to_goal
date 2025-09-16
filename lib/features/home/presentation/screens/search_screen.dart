@@ -304,8 +304,9 @@ class SearchScreen extends HookWidget {
                             label: 'High Priority',
                             onTap: () {
                               final next = {...selectedPriorities.value};
-                              if (!next.add(ItemPriority.high))
+                              if (!next.add(ItemPriority.high)) {
                                 next.remove(ItemPriority.high);
+                              }
                               selectedPriorities.value = next;
                             },
                             selectedBorder: AppColors.accentError,
@@ -326,8 +327,9 @@ class SearchScreen extends HookWidget {
                             label: 'Medium Priority',
                             onTap: () {
                               final next = {...selectedPriorities.value};
-                              if (!next.add(ItemPriority.medium))
+                              if (!next.add(ItemPriority.medium)) {
                                 next.remove(ItemPriority.medium);
+                              }
                               selectedPriorities.value = next;
                             },
                             selectedBorder: AppColors.accentWarning,
@@ -348,8 +350,9 @@ class SearchScreen extends HookWidget {
                             label: 'Low Priority',
                             onTap: () {
                               final next = {...selectedPriorities.value};
-                              if (!next.add(ItemPriority.low))
+                              if (!next.add(ItemPriority.low)) {
                                 next.remove(ItemPriority.low);
+                              }
                               selectedPriorities.value = next;
                             },
                             selectedBorder: AppColors.accentSuccess,
@@ -379,8 +382,9 @@ class SearchScreen extends HookWidget {
                             label: 'Completed',
                             onTap: () {
                               final next = {...selectedStatuses.value};
-                              if (!next.add(ItemStatus.completed))
+                              if (!next.add(ItemStatus.completed)) {
                                 next.remove(ItemStatus.completed);
+                              }
                               selectedStatuses.value = next;
                             },
                             selectedBorder: AppColors.accentSuccess,
@@ -397,8 +401,9 @@ class SearchScreen extends HookWidget {
                             label: 'Not Completed',
                             onTap: () {
                               final next = {...selectedStatuses.value};
-                              if (!next.add(ItemStatus.notCompleted))
+                              if (!next.add(ItemStatus.notCompleted)) {
                                 next.remove(ItemStatus.notCompleted);
+                              }
                               selectedStatuses.value = next;
                             },
                             selectedBorder: AppColors.accentWarning,
@@ -428,8 +433,9 @@ class SearchScreen extends HookWidget {
                             label: 'Note',
                             onTap: () {
                               final next = {...selectedTypes.value};
-                              if (!next.add(ItemType.note))
+                              if (!next.add(ItemType.note)) {
                                 next.remove(ItemType.note);
+                              }
                               selectedTypes.value = next;
                             },
                           ),
@@ -445,8 +451,9 @@ class SearchScreen extends HookWidget {
                             label: 'Goal',
                             onTap: () {
                               final next = {...selectedTypes.value};
-                              if (!next.add(ItemType.goal))
+                              if (!next.add(ItemType.goal)) {
                                 next.remove(ItemType.goal);
+                              }
                               selectedTypes.value = next;
                             },
                           ),
@@ -462,8 +469,9 @@ class SearchScreen extends HookWidget {
                             label: 'Success',
                             onTap: () {
                               final next = {...selectedTypes.value};
-                              if (!next.add(ItemType.success))
+                              if (!next.add(ItemType.success)) {
                                 next.remove(ItemType.success);
+                              }
                               selectedTypes.value = next;
                             },
                           ),

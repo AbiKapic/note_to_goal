@@ -8,7 +8,7 @@ import 'package:note_to_goal/app.dart';
 import 'package:note_to_goal/core/bloc/app_bloc_observer.dart';
 
 const String flavor = 'dev';
-const String apiBaseUrl = 'https://dev-api.example.com';
+const String apiBaseUrl = 'http://localhost:8080';
 const bool enableDebugFeatures = true;
 const bool enableAnalytics = false;
 const bool enableCrashReporting = false;
@@ -51,7 +51,7 @@ void main() async {
         return false;
       };
 
-      runApp(const App());
+      runApp(App(apiBaseUrl: apiBaseUrl));
     },
     (error, stackTrace) {
       if (kDebugMode) {

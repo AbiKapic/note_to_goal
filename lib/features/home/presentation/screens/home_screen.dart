@@ -302,18 +302,26 @@ class HomeScreen extends HookWidget {
 
     Widget buildHeader() {
       return Container(
-        padding: const EdgeInsets.only(
+        padding: EdgeInsets.only(
           left: 16,
           right: 16,
-          top: 24,
+          top: 24 + MediaQuery.of(context).padding.top,
           bottom: 16,
         ),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
             colors: [AppColors.primaryBrown, AppColors.primaryBrownVariant],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x40000000),
+              blurRadius: 12,
+              offset: Offset(0, 6),
+              spreadRadius: 2,
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -445,7 +453,7 @@ class HomeScreen extends HookWidget {
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Icon(
-                    Icons.nature,
+                    Icons.park,
                     color: AppColors.primaryBrown,
                     size: 24,
                   ),
@@ -534,22 +542,18 @@ class HomeScreen extends HookWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.secondaryBeigeDark,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.only(
-              bottom: 80,
-            ), // Account for bottom nav
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildHeader(),
-                buildWelcomeSection(),
-                buildStatsSection(),
-                buildRecentActivity(),
-              ],
-            ),
+      backgroundColor: AppColors.neutralOffWhite,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 80),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildHeader(),
+              buildWelcomeSection(),
+              buildStatsSection(),
+              buildRecentActivity(),
+            ],
           ),
         ),
       ),

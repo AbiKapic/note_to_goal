@@ -3,7 +3,7 @@ import 'package:dart_mappable/dart_mappable.dart';
 part 'base_state.mapper.dart';
 
 @MappableClass(discriminatorKey: 'type')
-sealed class BaseState<T> with BaseStateMappable<T> {
+abstract class BaseState<T> with BaseStateMappable<T> {
   const BaseState();
 
   static const fromMap = BaseStateMapper.fromMap;

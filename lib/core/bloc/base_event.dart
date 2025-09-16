@@ -3,7 +3,7 @@ import 'package:dart_mappable/dart_mappable.dart';
 part 'base_event.mapper.dart';
 
 @MappableClass(discriminatorKey: 'type')
-sealed class BaseEvent with BaseEventMappable {
+abstract class BaseEvent with BaseEventMappable {
   const BaseEvent();
 
   static const fromMap = BaseEventMapper.fromMap;

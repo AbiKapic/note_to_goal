@@ -37,6 +37,11 @@ dependencies:
   dart_mappable: ^4.0.0
   yaml: ^3.1.2
   equatable: ^2.0.5
+  top_snackbar_flutter: ^3.1.0
+  serverpod_flutter: 2.9.1
+  notetogoal_backend_client:
+    path: ../notetogoal_backend/notetogoal_backend_client
+  serverpod_auth_shared_flutter: ^2.9.1
 
 dev_dependencies:
   flutter_test:
