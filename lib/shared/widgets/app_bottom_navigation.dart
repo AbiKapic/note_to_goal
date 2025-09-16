@@ -37,7 +37,7 @@ class AppBottomNavigation extends HookWidget {
     this.showUnselectedLabels = true,
     this.elevation = 8,
     this.height = AppSpacing.bottomNavigationHeight,
-    this.borderRadius = AppConstants.borderRadiusMedium,
+    this.borderRadius = 0.0,
     this.semanticLabel,
   }) : assert(
          items.length >= 2 && items.length <= 5,
@@ -135,29 +135,13 @@ class AppBottomNavigation extends HookWidget {
           ? item.activeIcon!
           : item.icon;
 
-      final double iconSize = (index == 1 || index == 2)
-          ? 28
-          : 24; // Larger icon for create and library buttons
+      final double iconSize = 24;
       final double itemHeight = height - AppSpacing.sm * 2;
 
       Widget iconWidget = AnimatedContainer(
         duration: AppConstants.animationDurationNormal,
         curve: Curves.easeInOut,
-        child:
-            (index == 1 ||
-                index == 2) // Special styling for create and library buttons
-            ? Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.treeBrown.withOpacity(0.1)
-                      : AppColors.treeBrown.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(displayIcon, size: iconSize, color: iconColor),
-              )
-            : Icon(displayIcon, size: iconSize, color: iconColor),
+        child: Icon(displayIcon, size: iconSize, color: iconColor),
       );
 
       if (item.badgeCount != null && item.badgeCount! > 0) {
@@ -220,11 +204,7 @@ class AppBottomNavigation extends HookWidget {
             borderRadius: BorderRadius.circular(borderRadius),
             splashColor: getSelectedColor().withOpacity(0.1),
             highlightColor: getSelectedColor().withOpacity(0.05),
-            child: Container(
-              height: itemHeight,
-              padding: AppSpacing.bottomNavigationItemPadding,
-              child: content,
-            ),
+            child: SizedBox(height: itemHeight, child: content),
           ),
         ),
       );
@@ -232,23 +212,24 @@ class AppBottomNavigation extends HookWidget {
 
     Widget navigationBar = Container(
       height: height,
-      margin: AppSpacing.bottomNavigationPadding,
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.neutralWhite.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(borderRadius),
+        color: backgroundColor ?? AppColors.neutralWhite,
+        borderRadius: BorderRadius.zero,
+        border: const Border(
+          top: BorderSide(color: Color(0xFFE0E0E0), width: 1.0),
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: elevation,
-            offset: const Offset(0, -2),
+            color: AppColors.shadow.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, -1),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: Row(
-          children: List.generate(items.length, (index) => buildNavItem(index)),
-        ),
+      child: Row(
+        children: List.generate(items.length, (index) => buildNavItem(index)),
       ),
     );
 

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_typography.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_typography.dart';
 import '../../shared/constants/app_constants.dart';
 
 enum AppButtonVariant { primary, secondary, outlined, text }
@@ -32,6 +33,7 @@ class AppButton extends HookWidget {
     this.foregroundColor,
     this.borderColor,
     this.shadowColor,
+    this.backgroundGradient,
   }) : assert(
          child != null || text != null || icon != null,
          'Either child, text, or icon must be provided',
@@ -57,6 +59,7 @@ class AppButton extends HookWidget {
   final Color? foregroundColor;
   final Color? borderColor;
   final Color? shadowColor;
+  final Gradient? backgroundGradient;
 
   bool get isEnabled => !isDisabled && !isLoading && onPressed != null;
 
@@ -281,7 +284,9 @@ class AppButton extends HookWidget {
         maxHeight: maximumSize?.height ?? getButtonHeight(),
       ),
       child: Material(
-        color: getBackgroundColor(),
+        color: backgroundGradient != null
+            ? Colors.transparent
+            : getBackgroundColor(),
         elevation: getCurrentElevation(),
 
         borderRadius: BorderRadius.circular(
@@ -302,6 +307,7 @@ class AppButton extends HookWidget {
           child: Container(
             padding: getButtonPadding(),
             decoration: BoxDecoration(
+              gradient: backgroundGradient,
               border: Border.all(
                 color: getBorderColor(),
                 width: getBorderWidth(),

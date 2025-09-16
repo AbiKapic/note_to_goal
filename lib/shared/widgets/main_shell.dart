@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-import '../../core/theme/app_spacing.dart';
 import '../../features/create/presentation/screens/create_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/home/presentation/screens/search_screen.dart';
@@ -56,14 +55,11 @@ class MainShell extends HookWidget {
 
     return Scaffold(
       body: IndexedStack(index: currentIndex.value, children: screens),
-      bottomNavigationBar: Container(
-        padding: AppSpacing.bottomNavigationPadding,
-        child: AppBottomNavigation(
-          items: navigationItems,
-          currentIndex: currentIndex.value,
-          onTap: onTabTap,
-          semanticLabel: 'Main navigation',
-        ),
+      bottomNavigationBar: AppBottomNavigation(
+        items: navigationItems,
+        currentIndex: currentIndex.value,
+        onTap: onTabTap,
+        semanticLabel: 'Main navigation',
       ),
     );
   }
