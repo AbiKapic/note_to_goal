@@ -21,7 +21,9 @@ class AuthService {
 
   static AuthService get instance => _instance;
 
-  final FlutterAuthenticationKeyManager _keyManager;
+  // TODO: Uncomment when using real backend
+  // final FlutterAuthenticationKeyManager _keyManager;
+  final FlutterAuthenticationKeyManager _keyManager; // ignore: unused_field
   final Client _client;
 
   String? _refreshToken;
@@ -29,8 +31,12 @@ class AuthService {
   Client get client => _client;
 
   Future<bool> isAuthenticated() async {
-    final key = await _keyManager.get();
-    return key != null && key.isNotEmpty;
+    // Mock authentication check for testing - TODO: Remove when backend is ready
+    return _refreshToken != null && _refreshToken!.isNotEmpty;
+
+    // Uncomment below for real backend connection
+    // final key = await _keyManager.get();
+    // return key != null && key.isNotEmpty;
   }
 
   Future<Map<String, dynamic>> login({
@@ -38,6 +44,25 @@ class AuthService {
     required String password,
   }) async {
     return HandledException.guard(() async {
+      // Mock authentication for testing - TODO: Remove when backend is ready
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (email == 'abi' && password == 'kralj123') {
+        return {
+          'success': true,
+          'message': 'Login successful',
+          'refreshToken':
+              'mock_refresh_token_abi_${DateTime.now().millisecondsSinceEpoch}',
+          'user': {'id': '2', 'email': email, 'name': 'Abi'},
+        };
+      } else {
+        throw HandledException(
+          'Incorrect login credentials. Please check your username and password.',
+        );
+      }
+
+      // Uncomment below for real backend connection
+      /*
       final response = await _executeWithRetry<dynamic>(() async {
         return _client
             .callServerEndpoint<dynamic>('auth', 'login', <String, dynamic>{
@@ -50,11 +75,24 @@ class AuthService {
       final map = _asMap(response);
       _refreshToken = map['refreshToken'] as String?;
       return map;
+      */
     });
   }
 
   Future<Map<String, dynamic>> me() async {
     return HandledException.guard(() async {
+      // Mock user data for testing - TODO: Remove when backend is ready
+      await Future.delayed(const Duration(milliseconds: 500));
+      return {
+        'id': '2',
+        'email': 'abi',
+        'name': 'Abi',
+        'createdAt': DateTime.now().toIso8601String(),
+        'updatedAt': DateTime.now().toIso8601String(),
+      };
+
+      // Uncomment below for real backend connection
+      /*
       final response = await _executeWithRetry<dynamic>(() async {
         return _client
             .callServerEndpoint<dynamic>(
@@ -65,6 +103,7 @@ class AuthService {
             .timeout(AppConstants.defaultTimeout);
       });
       return _asMap(response);
+      */
     });
   }
 

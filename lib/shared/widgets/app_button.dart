@@ -203,13 +203,24 @@ class AppButton extends HookWidget {
 
     Widget buildContent() {
       if (isLoading) {
-        return SizedBox(
-          width: size == AppButtonSize.small ? 16 : 20,
-          height: size == AppButtonSize.small ? 16 : 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(getForegroundColor()),
-          ),
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(getForegroundColor()),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              text ?? '',
+              style: getButtonTextStyle().copyWith(color: getForegroundColor()),
+            ),
+          ],
         );
       }
 
@@ -217,11 +228,7 @@ class AppButton extends HookWidget {
 
       if (leadingIcon != null) {
         contentChildren.add(
-          Icon(
-            leadingIcon,
-            size: size == AppButtonSize.small ? 16 : 20,
-            color: getForegroundColor(),
-          ),
+          Icon(leadingIcon, size: 20, color: getForegroundColor()),
         );
         if (text != null ||
             child != null ||
@@ -232,13 +239,7 @@ class AppButton extends HookWidget {
       }
 
       if (icon != null && text == null && child == null) {
-        contentChildren.add(
-          Icon(
-            icon,
-            size: size == AppButtonSize.small ? 16 : 20,
-            color: getForegroundColor(),
-          ),
-        );
+        contentChildren.add(Icon(icon, size: 20, color: getForegroundColor()));
       } else if (text != null) {
         contentChildren.add(
           Text(
@@ -255,11 +256,7 @@ class AppButton extends HookWidget {
           contentChildren.add(const SizedBox(width: 8));
         }
         contentChildren.add(
-          Icon(
-            trailingIcon,
-            size: size == AppButtonSize.small ? 16 : 20,
-            color: getForegroundColor(),
-          ),
+          Icon(trailingIcon, size: 20, color: getForegroundColor()),
         );
       }
 
@@ -288,35 +285,39 @@ class AppButton extends HookWidget {
             ? Colors.transparent
             : getBackgroundColor(),
         elevation: getCurrentElevation(),
-
         borderRadius: BorderRadius.circular(
           borderRadius ?? AppConstants.borderRadiusMedium,
         ),
         clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: isEnabled ? onPressed : null,
-          onTapDown: isEnabled ? (_) => isPressed.value = true : null,
-          onTapUp: isEnabled ? (_) => isPressed.value = false : null,
-          onTapCancel: isEnabled ? () => isPressed.value = false : null,
-          onHover: isEnabled ? (hovered) => isHovered.value = hovered : null,
-          borderRadius: BorderRadius.circular(
-            borderRadius ?? AppConstants.borderRadiusMedium,
-          ),
-          splashColor: getForegroundColor().withOpacity(0.1),
-          highlightColor: getForegroundColor().withOpacity(0.05),
-          child: Container(
-            padding: getButtonPadding(),
-            decoration: BoxDecoration(
-              gradient: backgroundGradient,
-              border: Border.all(
-                color: getBorderColor(),
-                width: getBorderWidth(),
-              ),
-              borderRadius: BorderRadius.circular(
-                borderRadius ?? AppConstants.borderRadiusMedium,
-              ),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: backgroundGradient,
+            border: Border.all(
+              color: getBorderColor(),
+              width: getBorderWidth(),
             ),
-            child: Center(child: buildContent()),
+            borderRadius: BorderRadius.circular(
+              borderRadius ?? AppConstants.borderRadiusMedium,
+            ),
+            color: backgroundGradient == null ? getBackgroundColor() : null,
+          ),
+          child: InkWell(
+            onTap: isEnabled ? onPressed : null,
+            onLongPress: isEnabled ? () {} : null,
+            onTapDown: isEnabled ? (_) => isPressed.value = true : null,
+            onTapUp: isEnabled ? (_) => isPressed.value = false : null,
+            onTapCancel: isEnabled ? () => isPressed.value = false : null,
+            onHover: isEnabled ? (hovered) => isHovered.value = hovered : null,
+            borderRadius: BorderRadius.circular(
+              borderRadius ?? AppConstants.borderRadiusMedium,
+            ),
+            splashColor: getForegroundColor().withOpacity(0.12),
+            highlightColor: getForegroundColor().withOpacity(0.06),
+            child: Container(
+              padding: getButtonPadding(),
+              alignment: Alignment.center,
+              child: buildContent(),
+            ),
           ),
         ),
       ),

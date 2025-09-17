@@ -15,30 +15,29 @@ import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/handled_exception_snackbar_overlay.dart';
 
 class LoginScreen extends HookWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.isAuthLoading = false});
+
+  final bool isAuthLoading;
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, BaseState<AuthUser>>(
-      listener: (context, state) {
-        if (state is AuthError) {
-          HandledExceptionSnackbarOverlay.show(HandledException(state.message));
-        }
-      },
-      child: const HandledExceptionSnackbarOverlay(child: _LoginScaffold()),
+    return HandledExceptionSnackbarOverlay(
+      child: _LoginScaffold(isAuthLoading: isAuthLoading),
     );
   }
 }
 
 class _LoginScaffold extends HookWidget {
-  const _LoginScaffold();
+  const _LoginScaffold({required this.isAuthLoading});
+
+  final bool isAuthLoading;
 
   @override
   Widget build(BuildContext context) {
     final usernameController = useTextEditingController();
     final passwordController = useTextEditingController();
-    final isLoading = useState(false);
     final isValid = useState(false);
+    final isSubmitting = useState(false);
 
     void validate() {
       final username = usernameController.text.trim();
@@ -61,7 +60,7 @@ class _LoginScaffold extends HookWidget {
           statusBarIconBrightness: Brightness.dark,
           statusBarBrightness: Brightness.light,
           systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: Brightness.dark,
+          systemNavigationBarIconBrightness: Brightness.light,
           systemNavigationBarDividerColor: Colors.transparent,
         ),
       );
@@ -79,7 +78,7 @@ class _LoginScaffold extends HookWidget {
     }, [usernameController, passwordController]);
 
     Future<void> handleLogin() async {
-      if (isLoading.value) return;
+      if (isSubmitting.value) return;
 
       final username = usernameController.text.trim();
       final password = passwordController.text;
@@ -93,13 +92,9 @@ class _LoginScaffold extends HookWidget {
         return;
       }
 
-      isLoading.value = true;
-      try {
-        final bloc = context.read<AuthBloc>();
-        bloc.add(AuthLoginRequested(email: username, password: password));
-      } finally {
-        isLoading.value = false;
-      }
+      final bloc = context.read<AuthBloc>();
+      isSubmitting.value = true;
+      bloc.add(AuthLoginRequested(email: username, password: password));
     }
 
     Widget buildHeader() {
@@ -244,12 +239,15 @@ class _LoginScaffold extends HookWidget {
                 Expanded(
                   child: AppButton(
                     leadingIcon: Icons.login,
-                    text: '  Log In',
-                    onPressed: isValid.value ? handleLogin : null,
-                    isLoading: isLoading.value,
+                    text: 'Log In',
+                    onPressed: (isValid.value && !isSubmitting.value)
+                        ? handleLogin
+                        : null,
+                    isLoading: isSubmitting.value,
                     semanticLabel: 'Log in button',
                     elevation: 8,
                     borderRadius: 28,
+                    foregroundColor: AppColors.textOnBrown,
                     backgroundGradient: const LinearGradient(
                       colors: [AppColors.leafGreen, AppColors.primaryBrown],
                       begin: Alignment.centerLeft,
@@ -265,53 +263,67 @@ class _LoginScaffold extends HookWidget {
       );
     }
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          statusBarBrightness: Brightness.light,
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: Brightness.dark,
-          systemNavigationBarDividerColor: Colors.transparent,
-        ),
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.warmYellow,
-                AppColors.softCream,
-                AppColors.leafGreen,
-              ],
-              stops: [0.0, 0.5, 1.0],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+    final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
+    final dynamicBottomPadding = keyboardInset > 0 ? 16.0 : 120.0;
+
+    return BlocListener<AuthBloc, BaseState<AuthUser>>(
+      listener: (context, state) {
+        if (state is! AuthLoading) {
+          isSubmitting.value = false;
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarIconBrightness: Brightness.light,
+            systemNavigationBarDividerColor: Colors.transparent,
           ),
-          child: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height,
+          child: Container(
+            width: double.infinity,
+            height:
+                MediaQuery.of(context).size.height +
+                MediaQuery.of(context).padding.bottom,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.warmYellow,
+                  AppColors.softCream,
+                  AppColors.leafGreen,
+                ],
+                stops: [0.0, 0.5, 1.0],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 80),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    buildHeader(),
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 480),
-                        child: Stack(children: [buildFormCard()]),
+            ),
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height,
+                ),
+                child: AnimatedPadding(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOut,
+                  padding: EdgeInsets.only(bottom: dynamicBottomPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      buildHeader(),
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 480),
+                          child: Stack(children: [buildFormCard()]),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 56),
-                    const SizedBox(height: 40),
-                    buildTreeDecoration(),
-                  ],
+                      const SizedBox(height: 56),
+                      const SizedBox(height: 40),
+                      buildTreeDecoration(),
+                    ],
+                  ),
                 ),
               ),
             ),
