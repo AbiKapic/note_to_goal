@@ -92,7 +92,7 @@ class AppSpacing {
     horizontal: md,
     vertical: xs,
   );
-  static const double bottomNavigationHeight = touchTargetMinimum + xl;
+  static const double bottomNavigationHeight = 80.0;
 
   static const EdgeInsets fabPadding = EdgeInsets.all(md);
   static const double fabMinimumSize = touchTargetLarge;

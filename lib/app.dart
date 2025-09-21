@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:note_to_goal/core/theme/app_theme.dart';
 import 'package:note_to_goal/features/auth/presentation/widgets/auth_wrapper.dart';
 import 'package:note_to_goal/navigations/app_pages.dart';
+import 'package:note_to_goal/services/hive_service.dart';
 import 'package:note_to_goal/shared/widgets/handled_exception_snackbar_overlay.dart';
 
 class App extends StatelessWidget {
@@ -29,17 +30,28 @@ class App extends StatelessWidget {
       ),
     );
 
-    return MaterialApp(
-      title: 'Note to Goal',
-      builder: (context, child) => HandledExceptionSnackbarOverlay(
-        child: child ?? const SizedBox.shrink(),
-      ),
-      home: const AuthWrapper(),
-      routes: AppPages.routes,
-      onGenerateRoute: AppPages.createRoute,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+    return FutureBuilder(
+      future: HiveService.init(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return MaterialApp(
+            title: 'Note to Goal',
+            builder: (context, child) => HandledExceptionSnackbarOverlay(
+              child: child ?? const SizedBox.shrink(),
+            ),
+            home: const AuthWrapper(),
+            routes: AppPages.routes,
+            onGenerateRoute: AppPages.createRoute,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: ThemeMode.system,
+          );
+        } else {
+          return const MaterialApp(
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
+          );
+        }
+      },
     );
   }
 }

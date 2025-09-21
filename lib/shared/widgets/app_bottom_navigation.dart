@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../shared/constants/app_constants.dart';
 
@@ -35,8 +34,8 @@ class AppBottomNavigation extends HookWidget {
     this.unselectedItemColor,
     this.showLabels = true,
     this.showUnselectedLabels = true,
-    this.elevation = 8,
-    this.height = AppSpacing.bottomNavigationHeight,
+    this.elevation = 0, // Remove elevation to prevent layout issues
+    this.height = 80.0, // Increased height for better touch targets
     this.borderRadius = 0.0,
     this.semanticLabel,
   }) : assert(
@@ -116,10 +115,10 @@ class AppBottomNavigation extends HookWidget {
 
       final Color iconColor = isSelected
           ? AppColors.leafGreen
-          : AppColors.treeBrown.withValues(alpha: 0.5);
+          : AppColors.neutralDarkGray.withValues(alpha: 0.7);
       final Color labelColor = isSelected
           ? AppColors.leafGreen
-          : AppColors.treeBrown.withValues(alpha: 0.5);
+          : AppColors.neutralDarkGray.withValues(alpha: 0.7);
 
       final TextStyle labelStyle = isSelected
           ? AppTypography.navigationLabelSelected
@@ -130,7 +129,7 @@ class AppBottomNavigation extends HookWidget {
           : item.icon;
 
       final double iconSize = 24;
-      final double itemHeight = height - AppSpacing.sm * 2;
+      final double itemHeight = height - 16; // Account for top/bottom padding
 
       Widget iconWidget = AnimatedContainer(
         duration: AppConstants.animationDurationNormal,
@@ -197,14 +196,59 @@ class AppBottomNavigation extends HookWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: () => onTap(index),
-              borderRadius: BorderRadius.circular(borderRadius),
-              splashColor: AppColors.leafGreen.withValues(alpha: 0.2),
-              highlightColor: AppColors.leafGreen.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              splashColor: isSelected
+                  ? AppColors.neutralBlack.withValues(alpha: 0.12)
+                  : AppColors.neutralDarkGray.withValues(alpha: 0.08),
+              highlightColor: isSelected
+                  ? AppColors.neutralBlack.withValues(alpha: 0.08)
+                  : AppColors.neutralDarkGray.withValues(alpha: 0.04),
               splashFactory: InkRipple.splashFactory,
               child: Container(
                 height: itemHeight,
                 alignment: Alignment.center,
-                child: content,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.neutralBlack.withValues(alpha: 0.08)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(24),
+                        border: isSelected
+                            ? Border.all(
+                                color: AppColors.neutralBlack.withValues(
+                                  alpha: 0.15,
+                                ),
+                                width: 1.5,
+                              )
+                            : null,
+                      ),
+                      child: Icon(displayIcon, size: 26, color: iconColor),
+                    ),
+                    const SizedBox(height: 6),
+                    // Label with better typography
+                    Text(
+                      item.label,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: labelColor,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        fontSize: 11,
+                        letterSpacing: 0.3,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -213,20 +257,35 @@ class AppBottomNavigation extends HookWidget {
     }
 
     Widget navigationBar = Container(
-      height: height,
+      height:
+          height +
+          (MediaQuery.of(context).padding.bottom > 0
+              ? MediaQuery.of(context).padding.bottom
+              : 0),
       margin: EdgeInsets.zero,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.only(
+        top: 8,
+        bottom: MediaQuery.of(context).padding.bottom > 0
+            ? MediaQuery.of(context).padding.bottom
+            : 8,
+        left: 8,
+        right: 8,
+      ),
       decoration: BoxDecoration(
         color: backgroundColor ?? AppColors.neutralWhite,
-        borderRadius: BorderRadius.zero,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
         border: const Border(
-          top: BorderSide(color: Color(0xFFE0E0E0), width: 1.0),
+          top: BorderSide(color: Color(0xFFE5E7EB), width: 1.0),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, -1),
+            color: AppColors.shadow.withValues(alpha: 0.15),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+            spreadRadius: 2,
           ),
         ],
       ),
@@ -283,41 +342,71 @@ class AppBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: onTap,
-      backgroundColor: backgroundColor ?? AppColors.navigationBackground,
-      selectedItemColor: selectedItemColor ?? AppColors.navigationSelected,
-      unselectedItemColor:
-          unselectedItemColor ?? AppColors.navigationUnselected,
-      showSelectedLabels: showSelectedLabels,
-      showUnselectedLabels: showUnselectedLabels,
-      type: type,
-      elevation: elevation,
-      iconSize: iconSize,
-      selectedFontSize: selectedFontSize,
-      unselectedFontSize: unselectedFontSize,
-      selectedLabelStyle:
-          selectedLabelStyle ?? AppTypography.navigationLabelSelected,
-      unselectedLabelStyle:
-          unselectedLabelStyle ?? AppTypography.navigationLabel,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home),
-          label: 'Home',
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor ?? AppColors.neutralWhite,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.add_circle_outline),
-          activeIcon: Icon(Icons.add_circle),
-          label: 'Create',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_circle_outlined),
-          activeIcon: Icon(Icons.account_circle),
-          label: 'Account',
-        ),
-      ],
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadow.withValues(alpha: 0.12),
+            blurRadius: 8,
+            offset: const Offset(0, -1),
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: onTap,
+        backgroundColor: Colors.transparent,
+        selectedItemColor: selectedItemColor ?? AppColors.leafGreen,
+        unselectedItemColor:
+            unselectedItemColor ??
+            AppColors.neutralDarkGray.withValues(alpha: 0.7),
+        showSelectedLabels: showSelectedLabels,
+        showUnselectedLabels: showUnselectedLabels,
+        type: type,
+        elevation: 0,
+        iconSize: iconSize,
+        selectedFontSize: selectedFontSize,
+        unselectedFontSize: unselectedFontSize,
+        selectedLabelStyle:
+            selectedLabelStyle ??
+            AppTypography.navigationLabelSelected.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+              letterSpacing: 0.3,
+              color: AppColors.leafGreen,
+            ),
+        unselectedLabelStyle:
+            unselectedLabelStyle ??
+            AppTypography.navigationLabel.copyWith(
+              fontWeight: FontWeight.w500,
+              fontSize: 11,
+              letterSpacing: 0.3,
+              color: AppColors.neutralDarkGray.withValues(alpha: 0.7),
+            ),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined, size: 28),
+            activeIcon: Icon(Icons.home_rounded, size: 28),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle_outline_rounded, size: 28),
+            activeIcon: Icon(Icons.add_circle_rounded, size: 28),
+            label: 'Create',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline_rounded, size: 28),
+            activeIcon: Icon(Icons.person_rounded, size: 28),
+            label: 'Account',
+          ),
+        ],
+      ),
     );
   }
 }

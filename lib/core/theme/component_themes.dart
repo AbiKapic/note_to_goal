@@ -143,18 +143,15 @@ class ComponentThemes {
   static BottomNavigationBarThemeData get bottomNavigationBarTheme {
     return BottomNavigationBarThemeData(
       backgroundColor: AppColors.navigationBackground,
-      selectedItemColor: AppColors.navigationSelected,
+      selectedItemColor: AppColors.leafGreen,
       unselectedItemColor: AppColors.navigationUnselected,
       selectedLabelStyle: AppTypography.navigationLabelSelected,
       unselectedLabelStyle: AppTypography.navigationLabel,
-      elevation: 8,
+      elevation: 0,
       type: BottomNavigationBarType.fixed,
       showSelectedLabels: true,
       showUnselectedLabels: true,
-      selectedIconTheme: IconThemeData(
-        color: AppColors.navigationSelected,
-        size: 24,
-      ),
+      selectedIconTheme: IconThemeData(color: AppColors.leafGreen, size: 24),
       unselectedIconTheme: IconThemeData(
         color: AppColors.navigationUnselected,
         size: 24,
