@@ -85,6 +85,14 @@ class AuthBloc extends BaseBloc<AuthUser> {
     AuthLogoutRequested event,
     Emitter<BaseState<AuthUser>> emit,
   ) async {
-    emit(const AuthUnauthenticated());
+    emit(AuthLoading());
+    try {
+      await _authService.logout();
+      emit(const AuthUnauthenticated());
+    } on HandledException catch (error) {
+      emit(AuthError(error.message, error: error));
+    } catch (error) {
+      emit(AuthError(AppConstants.errorGeneric, error: error));
+    }
   }
 }

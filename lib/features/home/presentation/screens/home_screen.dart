@@ -5,6 +5,31 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../navigations/app_routes.dart';
 
+class _NoGlowScrollBehavior extends ScrollBehavior {
+  @override
+  Widget buildScrollbar(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child;
+  }
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child;
+  }
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const ClampingScrollPhysics();
+  }
+}
+
 enum ItemType { goal, success, note }
 
 enum ItemPriority { high, medium, low }
@@ -43,7 +68,7 @@ class HomeScreen extends HookWidget {
       case ItemType.success:
         return AppColors.accentWarning;
       case ItemType.note:
-        return AppColors.primaryBrown;
+        return AppColors.primaryBrownLight;
     }
   }
 
@@ -65,7 +90,7 @@ class HomeScreen extends HookWidget {
       case ItemType.success:
         return AppColors.accentWarning;
       case ItemType.note:
-        return AppColors.primaryBrown;
+        return AppColors.primaryBrownLight;
     }
   }
 
@@ -155,7 +180,7 @@ class HomeScreen extends HookWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.2),
+                color: iconColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: iconColor, size: 16),
@@ -164,7 +189,7 @@ class HomeScreen extends HookWidget {
             Text(
               value,
               style: AppTypography.headlineMedium.copyWith(
-                color: AppColors.primaryBrown,
+                color: AppColors.primaryBrownLight,
                 fontWeight: AppTypography.bold,
               ),
             ),
@@ -210,7 +235,7 @@ class HomeScreen extends HookWidget {
                       width: 20,
                       height: 20,
                       decoration: BoxDecoration(
-                        color: typeColor(item.type).withOpacity(0.2),
+                        color: typeColor(item.type).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -241,7 +266,7 @@ class HomeScreen extends HookWidget {
             Text(
               item.title,
               style: AppTypography.titleMedium.copyWith(
-                color: AppColors.primaryBrown,
+                color: AppColors.primaryBrownLight,
                 fontWeight: AppTypography.semiBold,
               ),
             ),
@@ -310,9 +335,14 @@ class HomeScreen extends HookWidget {
         ),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [AppColors.primaryBrown, AppColors.primaryBrownVariant],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
+            colors: [
+              AppColors.secondaryBeigeDark,
+              AppColors.softCream,
+              AppColors.leafGreen,
+            ],
+            stops: [0.0, 0.2, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
           boxShadow: const [
             BoxShadow(
@@ -337,7 +367,7 @@ class HomeScreen extends HookWidget {
                   ),
                   child: const Icon(
                     Icons.eco,
-                    color: AppColors.primaryBrown,
+                    color: AppColors.primaryBrownLight,
                     size: 20,
                   ),
                 ),
@@ -348,14 +378,16 @@ class HomeScreen extends HookWidget {
                     Text(
                       'NoteToGoal',
                       style: AppTypography.headlineSmall.copyWith(
-                        color: AppColors.textOnBrown,
+                        color: AppColors.primaryBrownLight,
                         fontWeight: AppTypography.bold,
                       ),
                     ),
                     Text(
                       'Grow your dreams',
                       style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.secondaryBeigeDark,
+                        color: AppColors.primaryBrown,
+                        fontWeight: AppTypography.semiBold,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ],
@@ -373,7 +405,7 @@ class HomeScreen extends HookWidget {
                   ),
                   child: const Icon(
                     Icons.notifications,
-                    color: AppColors.primaryBrown,
+                    color: AppColors.primaryBrownLight,
                     size: 18,
                   ),
                 ),
@@ -389,7 +421,7 @@ class HomeScreen extends HookWidget {
                     ),
                     child: const Icon(
                       Icons.person,
-                      color: AppColors.primaryBrown,
+                      color: AppColors.primaryBrownLight,
                       size: 18,
                     ),
                   ),
@@ -407,7 +439,12 @@ class HomeScreen extends HookWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [AppColors.secondaryBeigeLight, AppColors.secondaryBeige],
+            colors: [
+              AppColors.secondaryBeigeDark,
+              AppColors.softCream,
+              AppColors.leafGreen,
+            ],
+            stops: [0.0, 0.5, 1.0],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -432,7 +469,7 @@ class HomeScreen extends HookWidget {
                     Text(
                       'Good Morning!',
                       style: AppTypography.titleLarge.copyWith(
-                        color: AppColors.primaryBrown,
+                        color: AppColors.primaryBrownLight,
                         fontWeight: AppTypography.semiBold,
                       ),
                     ),
@@ -440,7 +477,7 @@ class HomeScreen extends HookWidget {
                     Text(
                       'Ready to grow today?',
                       style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.primaryBrownDark,
+                        color: AppColors.primaryBrown,
                       ),
                     ),
                   ],
@@ -449,12 +486,12 @@ class HomeScreen extends HookWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBrown.withOpacity(0.1),
+                    color: AppColors.primaryBrown.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Icon(
                     Icons.park,
-                    color: AppColors.primaryBrown,
+                    color: AppColors.primaryBrownLight,
                     size: 24,
                   ),
                 ),
@@ -475,7 +512,7 @@ class HomeScreen extends HookWidget {
                 Text(
                   '3 goals in progress',
                   style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.primaryBrown,
+                    color: AppColors.primaryBrownLight,
                   ),
                 ),
               ],
@@ -530,7 +567,7 @@ class HomeScreen extends HookWidget {
             Text(
               'Recent Activity',
               style: AppTypography.titleLarge.copyWith(
-                color: AppColors.primaryBrown,
+                color: AppColors.primaryBrownLight,
                 fontWeight: AppTypography.semiBold,
               ),
             ),
@@ -542,18 +579,39 @@ class HomeScreen extends HookWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.neutralOffWhite,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 80),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildHeader(),
-              buildWelcomeSection(),
-              buildStatsSection(),
-              buildRecentActivity(),
-            ],
+      backgroundColor: AppColors.secondaryBeigeDark,
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.secondaryBeigeLight,
+                AppColors.neutralWhite,
+                AppColors.accentSuccessLight,
+              ],
+              stops: [0.0, 0.2, 1.0],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: ScrollConfiguration(
+            behavior: _NoGlowScrollBehavior(),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom + 120,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildHeader(),
+                    buildWelcomeSection(),
+                    buildStatsSection(),
+                    buildRecentActivity(),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

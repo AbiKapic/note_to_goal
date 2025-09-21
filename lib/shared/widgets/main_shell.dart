@@ -55,11 +55,13 @@ class MainShell extends HookWidget {
 
     return Scaffold(
       body: IndexedStack(index: currentIndex.value, children: screens),
-      bottomNavigationBar: AppBottomNavigation(
-        items: navigationItems,
-        currentIndex: currentIndex.value,
-        onTap: onTabTap,
-        semanticLabel: 'Main navigation',
+      bottomNavigationBar: SafeArea(
+        child: AppBottomNavigation(
+          items: navigationItems,
+          currentIndex: currentIndex.value,
+          onTap: onTabTap,
+          semanticLabel: 'Main navigation',
+        ),
       ),
     );
   }

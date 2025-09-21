@@ -311,8 +311,8 @@ class AppButton extends HookWidget {
             borderRadius: BorderRadius.circular(
               borderRadius ?? AppConstants.borderRadiusMedium,
             ),
-            splashColor: getForegroundColor().withOpacity(0.12),
-            highlightColor: getForegroundColor().withOpacity(0.06),
+            splashColor: getForegroundColor().withValues(alpha: 0.12),
+            highlightColor: getForegroundColor().withValues(alpha: 0.06),
             child: Container(
               padding: getButtonPadding(),
               alignment: Alignment.center,

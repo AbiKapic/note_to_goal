@@ -23,20 +23,29 @@ class LibraryHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: EdgeInsets.only(
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        top: 24 + MediaQuery.of(context).padding.top,
+        bottom: AppSpacing.lg,
+      ),
       decoration: BoxDecoration(
-        color: AppColors.neutralWhite.withOpacity(0.8),
-        border: Border(
-          bottom: BorderSide(
-            color: AppColors.treeBrown.withOpacity(0.2),
-            width: 1,
-          ),
+        gradient: LinearGradient(
+          colors: [
+            AppColors.secondaryBeigeDark,
+            AppColors.softCream,
+            AppColors.leafGreen,
+          ],
+          stops: [0.0, 0.2, 1.0],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppColors.shadow,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            blurRadius: 12,
+            offset: Offset(0, 6),
+            spreadRadius: 2,
           ),
         ],
       ),
@@ -46,53 +55,71 @@ class LibraryHeader extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.leafGreen, AppColors.treeBrown],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(10),
+              color: AppColors.secondaryBeigeVariant,
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
               Icons.library_books,
-              color: AppColors.neutralWhite,
+              color: AppColors.primaryBrown,
               size: 20,
             ),
           ),
-          AppSpacing.horizontalSpaceMedium,
-          Text(
-            title,
-            style: AppTypography.headlineSmall.copyWith(
-              fontWeight: AppTypography.bold,
-              color: AppColors.treeBrown,
-            ),
+          const SizedBox(width: AppSpacing.md),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTypography.headlineSmall.copyWith(
+                  fontWeight: AppTypography.bold,
+                  color: AppColors.primaryBrown,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Explore your achievements',
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.primaryBrown,
+                  fontWeight: AppTypography.semiBold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
           ),
           const Spacer(),
           if (onSearchTap != null)
             GestureDetector(
               onTap: onSearchTap,
               child: Container(
-                width: 40,
-                height: 40,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.treeBrown.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.secondaryBeigeVariant,
+                  borderRadius: BorderRadius.circular(18),
                 ),
-                child: Icon(searchIcon, color: AppColors.treeBrown, size: 20),
+                child: Icon(
+                  searchIcon,
+                  color: AppColors.primaryBrown,
+                  size: 18,
+                ),
               ),
             ),
           if (onFilterTap != null) ...[
-            AppSpacing.horizontalSpaceSmall,
+            const SizedBox(width: AppSpacing.sm),
             GestureDetector(
               onTap: onFilterTap,
               child: Container(
-                width: 40,
-                height: 40,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.treeBrown.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.secondaryBeigeVariant,
+                  borderRadius: BorderRadius.circular(18),
                 ),
-                child: Icon(filterIcon, color: AppColors.treeBrown, size: 20),
+                child: Icon(
+                  filterIcon,
+                  color: AppColors.primaryBrown,
+                  size: 18,
+                ),
               ),
             ),
           ],

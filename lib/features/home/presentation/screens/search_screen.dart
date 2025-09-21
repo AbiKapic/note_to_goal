@@ -270,7 +270,7 @@ class SearchScreen extends HookWidget {
                           fontWeight: AppTypography.bold,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         'Select multiple filters to refine your search',
                         style: AppTypography.bodySmall.copyWith(
@@ -515,76 +515,89 @@ class SearchScreen extends HookWidget {
 
     Widget buildHeader() {
       return Container(
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 24,
-          bottom: 16,
+        padding: EdgeInsets.only(
+          left: AppSpacing.lg,
+          right: AppSpacing.lg,
+          top: 24 + MediaQuery.of(context).padding.top,
+          bottom: AppSpacing.lg,
         ),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.primaryBrown, AppColors.primaryBrownVariant],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              AppColors.secondaryBeigeDark,
+              AppColors.softCream,
+              AppColors.leafGreen,
+            ],
+            stops: [0.0, 0.2, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 12,
+              offset: Offset(0, 6),
+              spreadRadius: 2,
+            ),
+          ],
         ),
-        child: SafeArea(
-          bottom: false,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.maybePop(context);
-                    },
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryBeigeVariant,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: AppColors.primaryBrown,
-                        size: 18,
-                      ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.maybePop(context);
+                  },
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.secondaryBeigeVariant,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      color: AppColors.primaryBrown,
+                      size: 18,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Search & Discover',
-                        style: AppTypography.headlineSmall.copyWith(
-                          color: AppColors.textOnBrown,
-                          fontWeight: AppTypography.bold,
-                        ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Search & Discover',
+                      style: AppTypography.headlineSmall.copyWith(
+                        color: AppColors.primaryBrown,
+                        fontWeight: AppTypography.bold,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Find your growth journey',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.secondaryBeigeDark,
-                        ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Find your growth journey',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.primaryBrown,
+                        fontWeight: AppTypography.semiBold,
+                        letterSpacing: 0.5,
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       );
     }
 
     Widget buildSearchBar() {
       return Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         child: Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
             color: AppColors.neutralWhite,
             borderRadius: BorderRadius.circular(16),
@@ -599,28 +612,34 @@ class SearchScreen extends HookWidget {
           ),
           child: Row(
             children: [
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.sm),
               const Icon(Icons.search, color: AppColors.neutralMediumGray),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: TextField(
                   onChanged: (v) => searchQuery.value = v,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Search goals, notes, successes...',
+                    hintStyle: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.neutralMediumGray,
+                    ),
                     border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.sm,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               InkWell(
                 onTap: openFilterSheet,
                 child: Container(
-                  margin: const EdgeInsets.all(8),
-                  width: 32,
-                  height: 32,
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: AppColors.primaryBrown,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.filter_list,
@@ -690,14 +709,22 @@ class SearchScreen extends HookWidget {
         );
       }
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Wrap(spacing: 8, runSpacing: 8, children: chips),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        child: Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: chips,
+        ),
       );
     }
 
     Widget buildItemCard(GrowthItem item) {
       return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        margin: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.sm,
+        ),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
           color: AppColors.neutralWhite,
           borderRadius: BorderRadius.circular(16),
@@ -710,151 +737,148 @@ class SearchScreen extends HookWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: typeColor(item.type).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(typeIcon(item.type), color: typeColor(item.type)),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: typeColor(item.type).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.titleMedium.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: AppTypography.semiBold,
-                            ),
+              child: Icon(typeIcon(item.type), color: typeColor(item.type)),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.titleMedium.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: AppTypography.semiBold,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: priorityDot(item.priority),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            priorityLabel(item.priority),
+                            style: AppTypography.labelSmall.copyWith(
+                              color: priorityDot(item.priority),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    item.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        item.type == ItemType.goal
+                            ? 'Goal'
+                            : item.type == ItemType.success
+                            ? 'Success'
+                            : 'Note',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.textTertiary,
+                        ),
+                      ),
+                      if (item.type == ItemType.goal &&
+                          item.progressPercent != null)
                         Row(
                           children: [
                             Container(
-                              width: 8,
-                              height: 8,
+                              width: 64,
+                              height: 4,
                               decoration: BoxDecoration(
-                                color: priorityDot(item.priority),
-                                shape: BoxShape.circle,
+                                color: AppColors.neutralLightGray,
+                                borderRadius: BorderRadius.circular(2),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              priorityLabel(item.priority),
-                              style: AppTypography.labelSmall.copyWith(
-                                color: priorityDot(item.priority),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      item.description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          item.type == ItemType.goal
-                              ? 'Goal'
-                              : item.type == ItemType.success
-                              ? 'Success'
-                              : 'Note',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                        if (item.type == ItemType.goal &&
-                            item.progressPercent != null)
-                          Row(
-                            children: [
-                              Container(
-                                width: 64,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: AppColors.neutralLightGray,
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Container(
-                                    width:
-                                        64 *
-                                        (item.progressPercent!.clamp(0, 100) /
-                                            100),
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.accentSuccess,
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width:
+                                      64 *
+                                      (item.progressPercent!.clamp(0, 100) /
+                                          100),
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accentSuccess,
+                                    borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${item.progressPercent}%',
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: AppColors.accentSuccess,
-                                ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Text(
+                              '${item.progressPercent}%',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: AppColors.accentSuccess,
                               ),
-                            ],
-                          )
-                        else
-                          Row(
-                            children: [
-                              Icon(
-                                item.status == ItemStatus.completed
-                                    ? Icons.check_circle
-                                    : Icons.bookmark,
-                                size: 14,
+                            ),
+                          ],
+                        )
+                      else
+                        Row(
+                          children: [
+                            Icon(
+                              item.status == ItemStatus.completed
+                                  ? Icons.check_circle
+                                  : Icons.bookmark,
+                              size: 14,
+                              color: item.status == ItemStatus.completed
+                                  ? AppColors.accentSuccess
+                                  : AppColors.primaryBrown,
+                            ),
+                            const SizedBox(width: AppSpacing.xs),
+                            Text(
+                              item.status == ItemStatus.completed
+                                  ? 'Completed'
+                                  : 'Saved',
+                              style: AppTypography.labelSmall.copyWith(
                                 color: item.status == ItemStatus.completed
                                     ? AppColors.accentSuccess
                                     : AppColors.primaryBrown,
                               ),
-                              const SizedBox(width: 4),
-                              Text(
-                                item.status == ItemStatus.completed
-                                    ? 'Completed'
-                                    : 'Saved',
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: item.status == ItemStatus.completed
-                                      ? AppColors.accentSuccess
-                                      : AppColors.primaryBrown,
-                                ),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
@@ -863,46 +887,62 @@ class SearchScreen extends HookWidget {
 
     return Scaffold(
       backgroundColor: AppColors.secondaryBeigeDark,
-      body: Column(
-        children: [
-          buildHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildSearchBar(),
-                  buildActiveFilters(),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Your Growth Items',
-                          style: AppTypography.titleMedium.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: AppTypography.semiBold,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.secondaryBeigeLight,
+              AppColors.neutralWhite,
+              AppColors.accentSuccessLight,
+            ],
+            stops: [0.0, 0.2, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          children: [
+            buildHeader(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildSearchBar(),
+                    buildActiveFilters(),
+                    const SizedBox(height: AppSpacing.sm),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Your Growth Items',
+                            style: AppTypography.titleMedium.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: AppTypography.semiBold,
+                            ),
                           ),
-                        ),
-                        Text(
-                          '${results.length} items',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.neutralDarkGray,
+                          Text(
+                            '${results.length} items',
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.neutralDarkGray,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...results.map(buildItemCard),
-                  const SizedBox(height: 88),
-                ],
+                    const SizedBox(height: AppSpacing.sm),
+                    ...results.map(buildItemCard),
+                    const SizedBox(height: AppSpacing.massive),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -922,10 +962,20 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(999),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.shadow,
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -937,15 +987,15 @@ class _FilterChip extends StatelessWidget {
               fontWeight: AppTypography.semiBold,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.sm),
           InkWell(
             onTap: onRemove,
             child: Container(
-              width: 18,
-              height: 18,
+              width: 20,
+              height: 20,
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: BorderRadius.circular(9),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
                 Icons.close,

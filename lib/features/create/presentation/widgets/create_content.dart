@@ -86,7 +86,7 @@ class CreateContent extends HookWidget {
                 ],
               ),
               border: Border.all(
-                color: AppColors.primaryBrown.withOpacity(0.15),
+                color: AppColors.primaryBrown.withValues(alpha: 0.15),
               ),
             ),
             child: Column(
@@ -97,7 +97,7 @@ class CreateContent extends HookWidget {
                   child: Icon(
                     Icons.lightbulb,
                     size: 32,
-                    color: AppColors.primaryBrown.withOpacity(0.25),
+                    color: AppColors.primaryBrown.withValues(alpha: 0.25),
                   ),
                 ),
                 Text(
@@ -155,7 +155,7 @@ class CreateContent extends HookWidget {
                   active: selectedType.value == CreateType.goal,
                   activeBorderColor: AppColors.accentSuccessDark,
                   background: Colors.white,
-                  indicatorBackground: Colors.green.withOpacity(0.2),
+                  indicatorBackground: Colors.green.withValues(alpha: 0.2),
                   indicatorColor: Colors.green.shade700,
                   onTap: () => selectedType.value = CreateType.goal,
                 ),
@@ -168,7 +168,7 @@ class CreateContent extends HookWidget {
                   active: selectedType.value == CreateType.success,
                   activeBorderColor: Colors.amber.shade600,
                   background: Colors.white,
-                  indicatorBackground: Colors.amber.withOpacity(0.2),
+                  indicatorBackground: Colors.amber.withValues(alpha: 0.2),
                   indicatorColor: Colors.amber.shade700,
                   onTap: () => selectedType.value = CreateType.success,
                 ),
@@ -181,7 +181,7 @@ class CreateContent extends HookWidget {
                   active: selectedType.value == CreateType.note,
                   activeBorderColor: Colors.teal.shade600,
                   background: Colors.white,
-                  indicatorBackground: Colors.teal.withOpacity(0.2),
+                  indicatorBackground: Colors.teal.withValues(alpha: 0.2),
                   indicatorColor: Colors.teal.shade700,
                   onTap: () => selectedType.value = CreateType.note,
                 ),
@@ -196,7 +196,7 @@ class CreateContent extends HookWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.secondaryBeigeDark.withOpacity(0.5),
+                color: AppColors.secondaryBeigeDark.withValues(alpha: 0.5),
               ),
             ),
             child: Column(
@@ -227,7 +227,7 @@ class CreateContent extends HookWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.secondaryBeigeDark.withOpacity(0.5),
+                color: AppColors.secondaryBeigeDark.withValues(alpha: 0.5),
               ),
             ),
             child: Column(
@@ -260,7 +260,7 @@ class CreateContent extends HookWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: AppColors.secondaryBeigeDark.withOpacity(0.5),
+                  color: AppColors.secondaryBeigeDark.withValues(alpha: 0.5),
                 ),
               ),
               child: Column(
@@ -326,7 +326,7 @@ class CreateContent extends HookWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.secondaryBeigeDark.withOpacity(0.5),
+                color: AppColors.secondaryBeigeDark.withValues(alpha: 0.5),
               ),
             ),
             child: Column(
@@ -487,7 +487,7 @@ class _PriorityButton extends HookWidget {
           color: background,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: active ? color.withOpacity(0.6) : Colors.transparent,
+            color: active ? color.withValues(alpha: 0.6) : Colors.transparent,
             width: 2,
           ),
         ),

@@ -49,7 +49,7 @@ class AccountProfileSection extends StatelessWidget {
     return Container(
       width: 1,
       height: 32,
-      color: AppColors.treeBrown.withOpacity(0.2),
+      color: AppColors.treeBrown.withValues(alpha: 0.2),
     );
   }
 
@@ -58,10 +58,10 @@ class AccountProfileSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.neutralWhite.withOpacity(0.7),
+        color: AppColors.neutralWhite.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppColors.treeBrown.withOpacity(0.2),
+          color: AppColors.treeBrown.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
@@ -102,7 +102,9 @@ class AccountProfileSection extends StatelessWidget {
                               child: Icon(
                                 Icons.account_circle,
                                 size: 48,
-                                color: AppColors.treeBrown.withOpacity(0.5),
+                                color: AppColors.treeBrown.withValues(
+                                  alpha: 0.5,
+                                ),
                               ),
                             );
                           },
@@ -112,7 +114,7 @@ class AccountProfileSection extends StatelessWidget {
                           child: Icon(
                             Icons.account_circle,
                             size: 48,
-                            color: AppColors.treeBrown.withOpacity(0.5),
+                            color: AppColors.treeBrown.withValues(alpha: 0.5),
                           ),
                         ),
                 ),

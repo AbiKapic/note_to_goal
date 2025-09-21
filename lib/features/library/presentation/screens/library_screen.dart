@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../widgets/library_header.dart';
 import '../widgets/library_section.dart';
 
@@ -12,43 +13,36 @@ class LibraryScreen extends HookWidget {
   void _handleSectionTap(LibrarySectionType type) {
     switch (type) {
       case LibrarySectionType.completed:
-        // Navigate to completed goals screen
         break;
       case LibrarySectionType.favorites:
-        // Navigate to favorites screen
         break;
       case LibrarySectionType.failed:
-        // Navigate to failed goals screen
         break;
       case LibrarySectionType.notes:
-        // Navigate to all notes screen
         break;
     }
   }
 
-  void _handleFilterTap() {
-    // Handle filter button tap
-  }
+  void _handleFilterTap() {}
 
-  void _handleSearchTap() {
-    // Handle search button tap
-  }
+  void _handleSearchTap() {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.warmYellow,
+      backgroundColor: AppColors.secondaryBeigeDark,
       body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.warmYellow,
-                AppColors.softCream,
-                AppColors.leafGreen.withOpacity(0.3),
+                AppColors.secondaryBeigeLight,
+                AppColors.neutralWhite,
+                AppColors.accentSuccessLight,
               ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              stops: [0.0, 0.2, 1.0],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
           child: CustomScrollView(
@@ -56,28 +50,29 @@ class LibraryScreen extends HookWidget {
               SliverToBoxAdapter(
                 child: Column(
                   children: [
-                    // Header
                     LibraryHeader(
                       title: 'Library',
                       onFilterTap: _handleFilterTap,
                       onSearchTap: _handleSearchTap,
                     ),
 
-                    // Top Navigation Bar (similar to bottom navigation but horizontal)
                     Container(
                       margin: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
+                        horizontal: AppSpacing.lg,
+                        vertical: AppSpacing.lg,
                       ),
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(AppSpacing.xs),
                       decoration: BoxDecoration(
-                        color: AppColors.neutralWhite.withOpacity(0.9),
+                        color: AppColors.neutralWhite,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
+                        border: Border.all(
+                          color: AppColors.secondaryBeigeVariant,
+                        ),
+                        boxShadow: const [
                           BoxShadow(
                             color: AppColors.shadow,
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
                           ),
                         ],
                       ),
@@ -115,24 +110,22 @@ class LibraryScreen extends HookWidget {
                       ),
                     ),
 
-                    // Main Content
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Section Title
                           Text(
                             'Your Library',
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(
-                                  color: AppColors.treeBrown,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: AppTypography.titleLarge.copyWith(
+                              color: AppColors.primaryBrown,
+                              fontWeight: AppTypography.semiBold,
+                            ),
                           ),
-                          AppSpacing.verticalSpaceMedium,
+                          const SizedBox(height: AppSpacing.lg),
 
-                          // Library Sections
                           Column(
                             children: [
                               LibrarySection(
@@ -178,22 +171,20 @@ class LibraryScreen extends HookWidget {
                             ],
                           ),
 
-                          // Stats Overview
-                          AppSpacing.verticalSpaceLarge,
+                          const SizedBox(height: AppSpacing.xl),
                           Container(
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(AppSpacing.lg),
                             decoration: BoxDecoration(
-                              color: AppColors.neutralWhite.withOpacity(0.7),
+                              color: AppColors.neutralWhite,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: AppColors.treeBrown.withOpacity(0.2),
-                                width: 1,
+                                color: AppColors.secondaryBeigeVariant,
                               ),
-                              boxShadow: [
+                              boxShadow: const [
                                 BoxShadow(
                                   color: AppColors.shadow,
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                                  blurRadius: 6,
+                                  offset: Offset(0, 2),
                                 ),
                               ],
                             ),
@@ -201,13 +192,12 @@ class LibraryScreen extends HookWidget {
                               children: [
                                 Text(
                                   'Library Statistics',
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(
-                                        color: AppColors.treeBrown,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  style: AppTypography.titleMedium.copyWith(
+                                    color: AppColors.primaryBrown,
+                                    fontWeight: AppTypography.semiBold,
+                                  ),
                                 ),
-                                AppSpacing.verticalSpaceMedium,
+                                const SizedBox(height: AppSpacing.lg),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
@@ -245,14 +235,13 @@ class LibraryScreen extends HookWidget {
                       ),
                     ),
 
-                    // Bottom Decoration
                     Container(
-                      height: 80,
+                      height: AppSpacing.massive,
                       alignment: Alignment.center,
                       child: Icon(
                         Icons.eco,
                         size: 48,
-                        color: AppColors.treeBrown.withOpacity(0.2),
+                        color: AppColors.primaryBrown.withValues(alpha: 0.2),
                       ),
                     ),
                   ],
@@ -274,9 +263,9 @@ class LibraryScreen extends HookWidget {
   }) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
+          color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -285,17 +274,20 @@ class LibraryScreen extends HookWidget {
             Icon(
               icon,
               size: 20,
-              color: isSelected ? color : AppColors.treeBrown.withOpacity(0.5),
+              color: isSelected
+                  ? color
+                  : AppColors.primaryBrown.withValues(alpha: 0.5),
             ),
-            AppSpacing.verticalSpaceTiny,
+            const SizedBox(height: AppSpacing.xs),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              style: AppTypography.labelSmall.copyWith(
                 color: isSelected
                     ? color
-                    : AppColors.treeBrown.withOpacity(0.5),
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                fontSize: 10,
+                    : AppColors.primaryBrown.withValues(alpha: 0.5),
+                fontWeight: isSelected
+                    ? AppTypography.semiBold
+                    : AppTypography.regular,
               ),
               textAlign: TextAlign.center,
             ),
@@ -315,17 +307,17 @@ class LibraryScreen extends HookWidget {
       children: [
         Text(
           value,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
+          style: AppTypography.headlineMedium.copyWith(
+            fontWeight: AppTypography.bold,
             color: color,
           ),
         ),
-        AppSpacing.verticalSpaceTiny,
+        const SizedBox(height: AppSpacing.xs),
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
       ],
     );

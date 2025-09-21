@@ -73,12 +73,6 @@ class AppBottomNavigation extends HookWidget {
       return null;
     }, [currentIndex]);
 
-    Color getSelectedColor() {
-      return selectedItemColor ?? AppColors.navigationSelected;
-    }
-
-    // removed unused getUnselectedColor to satisfy linter
-
     Widget buildBadge(int? count) {
       if (count == null || count == 0) return const SizedBox.shrink();
 
@@ -122,10 +116,10 @@ class AppBottomNavigation extends HookWidget {
 
       final Color iconColor = isSelected
           ? AppColors.leafGreen
-          : AppColors.treeBrown.withOpacity(0.5);
+          : AppColors.treeBrown.withValues(alpha: 0.5);
       final Color labelColor = isSelected
           ? AppColors.leafGreen
-          : AppColors.treeBrown.withOpacity(0.5);
+          : AppColors.treeBrown.withValues(alpha: 0.5);
 
       final TextStyle labelStyle = isSelected
           ? AppTypography.navigationLabelSelected
@@ -199,12 +193,20 @@ class AppBottomNavigation extends HookWidget {
           selected: isSelected,
           label: item.semanticLabel ?? item.label,
           button: true,
-          child: InkWell(
-            onTap: () => onTap(index),
-            borderRadius: BorderRadius.circular(borderRadius),
-            splashColor: getSelectedColor().withOpacity(0.1),
-            highlightColor: getSelectedColor().withOpacity(0.05),
-            child: SizedBox(height: itemHeight, child: content),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => onTap(index),
+              borderRadius: BorderRadius.circular(borderRadius),
+              splashColor: AppColors.leafGreen.withValues(alpha: 0.2),
+              highlightColor: AppColors.leafGreen.withValues(alpha: 0.1),
+              splashFactory: InkRipple.splashFactory,
+              child: Container(
+                height: itemHeight,
+                alignment: Alignment.center,
+                child: content,
+              ),
+            ),
           ),
         ),
       );
@@ -222,7 +224,7 @@ class AppBottomNavigation extends HookWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, -1),
           ),

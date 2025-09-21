@@ -79,6 +79,23 @@ class AuthService {
     });
   }
 
+  Future<void> logout() async {
+    return HandledException.guard(() async {
+      // Mock logout for testing - TODO: Remove when backend is ready
+      await Future.delayed(const Duration(seconds: 1));
+      _refreshToken = null;
+
+      // Uncomment below for real backend connection
+      /*
+      await _executeWithRetry<void>(() async {
+        return _client
+            .callServerEndpoint<void>('auth', 'logout', const <String, dynamic>{})
+            .timeout(AppConstants.defaultTimeout);
+      });
+      */
+    });
+  }
+
   Future<Map<String, dynamic>> me() async {
     return HandledException.guard(() async {
       // Mock user data for testing - TODO: Remove when backend is ready

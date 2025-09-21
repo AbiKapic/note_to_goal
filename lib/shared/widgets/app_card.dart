@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../shared/constants/app_constants.dart';
@@ -72,11 +73,11 @@ class AppCard extends HookWidget {
       if (borderColor != null) return borderColor!;
       switch (variant) {
         case AppCardVariant.elevated:
-          return AppColors.cardBorder.withOpacity(0.2);
+          return AppColors.cardBorder.withValues(alpha: 0.2);
         case AppCardVariant.outlined:
           return AppColors.cardBorder;
         case AppCardVariant.filled:
-          return AppColors.cardBorder.withOpacity(0.3);
+          return AppColors.cardBorder.withValues(alpha: 0.3);
       }
     }
 
@@ -179,8 +180,8 @@ class AppCard extends HookWidget {
           onTapUp: (_) => isPressed.value = false,
           onTapCancel: () => isPressed.value = false,
           borderRadius: BorderRadius.circular(borderRadius),
-          splashColor: AppColors.primaryBrown.withOpacity(0.1),
-          highlightColor: AppColors.primaryBrown.withOpacity(0.05),
+          splashColor: AppColors.primaryBrown.withValues(alpha: 0.1),
+          highlightColor: AppColors.primaryBrown.withValues(alpha: 0.05),
           child: Container(
             padding: padding,
             decoration: BoxDecoration(

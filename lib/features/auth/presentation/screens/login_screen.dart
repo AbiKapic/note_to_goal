@@ -145,7 +145,7 @@ class _LoginScaffold extends HookWidget {
               'Transform your notes into achievements',
               textAlign: TextAlign.center,
               style: AppTypography.bodySmall.copyWith(
-                color: AppColors.treeBrown.withOpacity(0.6),
+                color: AppColors.treeBrown.withValues(alpha: 0.6),
                 fontSize: 16,
               ),
             ),

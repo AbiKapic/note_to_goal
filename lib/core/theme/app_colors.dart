@@ -85,7 +85,6 @@ class AppColors {
 
   static const Color shadow = Color(0x1A8B4513);
 
-  // HTML Design Colors
   static const Color treeBrown = Color(0xFF8B5A3C);
   static const Color leafGreen = Color(0xFF7FB069);
   static const Color warmYellow = Color(0xFFFFF3B8);
