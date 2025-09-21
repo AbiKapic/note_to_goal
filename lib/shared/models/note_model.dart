@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
 
 part 'note_model.g.dart';
 
@@ -46,6 +47,37 @@ class Note {
     this.progressPercent,
     this.progressUnit,
   });
+
+  factory Note.create({
+    required String title,
+    required String description,
+    required NoteType type,
+    required PriorityLevel priority,
+    int? progressPercent,
+    String? progressUnit,
+  }) {
+    if (title.trim().isEmpty) {
+      throw ArgumentError('Title cannot be empty');
+    }
+    if (description.trim().isEmpty) {
+      throw ArgumentError('Description cannot be empty');
+    }
+    if (progressPercent != null &&
+        (progressPercent < 0 || progressPercent > 100)) {
+      throw ArgumentError('Progress percentage must be between 0 and 100');
+    }
+
+    return Note(
+      id: const Uuid().v4(),
+      title: title.trim(),
+      description: description.trim(),
+      type: type,
+      priority: priority,
+      createdAt: DateTime.now(),
+      progressPercent: progressPercent,
+      progressUnit: progressUnit,
+    );
+  }
 
   Note copyWith({
     String? id,

@@ -1,19 +1,56 @@
-import 'package:hive/hive.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../shared/models/note_model.dart';
 
+class NoteTypeAdapter extends TypeAdapter<NoteType> {
+  @override
+  final int typeId = 1;
+
+  @override
+  NoteType read(BinaryReader reader) {
+    return NoteType.values[reader.readByte()];
+  }
+
+  @override
+  void write(BinaryWriter writer, NoteType obj) {
+    writer.writeByte(obj.index);
+  }
+}
+
+class PriorityLevelAdapter extends TypeAdapter<PriorityLevel> {
+  @override
+  final int typeId = 2;
+
+  @override
+  PriorityLevel read(BinaryReader reader) {
+    return PriorityLevel.values[reader.readByte()];
+  }
+
+  @override
+  void write(BinaryWriter writer, PriorityLevel obj) {
+    writer.writeByte(obj.index);
+  }
+}
+
 class HiveService {
   static const String _notesBoxName = 'notes';
 
   static Future<void> init() async {
-    final appDocumentDir = await getApplicationDocumentsDirectory();
-    Hive.init(appDocumentDir.path);
+    try {
+      final appDocumentDir = await getApplicationDocumentsDirectory();
+      Hive.init(appDocumentDir.path);
 
-    Hive.registerAdapter(NoteAdapter());
+      Hive.registerAdapter(NoteTypeAdapter());
+      Hive.registerAdapter(PriorityLevelAdapter());
 
-    await Hive.openBox<Note>(_notesBoxName);
+      Hive.registerAdapter(NoteAdapter());
+
+      await Hive.openBox<Note>(_notesBoxName);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   static Future<void> close() async {
@@ -23,16 +60,32 @@ class HiveService {
   // Notes operations
   static Box<Note> get notesBox => Hive.box<Note>(_notesBoxName);
 
+  static ValueListenable<Box<Note>> notesListenable() {
+    return notesBox.listenable();
+  }
+
   static Future<void> addNote(Note note) async {
-    await notesBox.put(note.id, note);
+    try {
+      await notesBox.put(note.id, note);
+    } catch (e) {
+      throw Exception('Failed to save note to Hive: ${e.toString()}');
+    }
   }
 
   static Future<void> updateNote(Note note) async {
-    await notesBox.put(note.id, note.copyWith(updatedAt: DateTime.now()));
+    try {
+      await notesBox.put(note.id, note.copyWith(updatedAt: DateTime.now()));
+    } catch (e) {
+      throw Exception('Failed to update note in Hive: ${e.toString()}');
+    }
   }
 
   static Future<void> deleteNote(String id) async {
-    await notesBox.delete(id);
+    try {
+      await notesBox.delete(id);
+    } catch (e) {
+      throw Exception('Failed to delete note from Hive: ${e.toString()}');
+    }
   }
 
   static List<Note> getAllNotes() {

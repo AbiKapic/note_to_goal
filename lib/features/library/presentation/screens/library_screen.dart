@@ -23,11 +23,9 @@ class LibraryScreen extends HookWidget {
   }
 
   Widget _buildAllNotesLibrary(BuildContext context) {
-    final allNotes = useMemoized(
-      () =>
-          HiveService.getAllNotes()
-            ..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
-    );
+    useListenable(HiveService.notesListenable());
+    final allNotes = HiveService.getAllNotes()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     return Scaffold(
       backgroundColor: AppColors.secondaryBeigeDark,
@@ -76,7 +74,8 @@ class LibraryScreen extends HookWidget {
   }
 
   Widget _buildTypedLibrary(BuildContext context, NoteType noteType) {
-    final notes = useMemoized(() => HiveService.getNotesByType(noteType));
+    useListenable(HiveService.notesListenable());
+    final notes = HiveService.getNotesByType(noteType);
 
     String getLibraryTitle(NoteType type) {
       switch (type) {

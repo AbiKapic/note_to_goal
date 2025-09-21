@@ -42,11 +42,11 @@ class MainShell extends HookWidget {
       ),
     ];
 
-    final screens = const [
-      HomeScreen(key: PageStorageKey<String>(AppRoutes.home)),
-      SearchScreen(key: PageStorageKey<String>(AppRoutes.search)),
-      CreateScreen(key: PageStorageKey<String>(AppRoutes.create)),
-      LibraryScreen(key: PageStorageKey<String>(AppRoutes.library)),
+    final screens = [
+      const HomeScreen(key: PageStorageKey<String>(AppRoutes.home)),
+      const SearchScreen(key: PageStorageKey<String>(AppRoutes.search)),
+      const CreateScreen(key: PageStorageKey<String>(AppRoutes.create)),
+      const LibraryScreen(key: PageStorageKey<String>(AppRoutes.library)),
     ];
 
     void onTabTap(int index) {
@@ -54,6 +54,7 @@ class MainShell extends HookWidget {
     }
 
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(index: currentIndex.value, children: screens),
       bottomNavigationBar: AppBottomNavigation(
         items: navigationItems,

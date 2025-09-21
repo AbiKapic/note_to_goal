@@ -38,8 +38,10 @@ class HomeScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    useListenable(HiveService.notesListenable());
     final notesCountByType = useMemoized(
       () => HiveService.getAllNotesCountByType(),
+      [HiveService.getAllNotes().length],
     );
     final recentNotesByType = useMemoized(() {
       final Map<NoteType, List<Note>> recentNotes = {};
@@ -47,7 +49,7 @@ class HomeScreen extends HookWidget {
         recentNotes[type] = HiveService.getNotesByType(type).take(2).toList();
       }
       return recentNotes;
-    });
+    }, [HiveService.getAllNotes().length]);
 
     void openAccountPage() {
       Navigator.of(context).pushNamed(AppRoutes.account);
@@ -64,7 +66,7 @@ class HomeScreen extends HookWidget {
         padding: EdgeInsets.only(
           left: 16,
           right: 16,
-          top: 24 + MediaQuery.of(context).padding.top,
+          top: MediaQuery.of(context).viewPadding.top,
           bottom: 16,
         ),
         decoration: BoxDecoration(
@@ -256,18 +258,80 @@ class HomeScreen extends HookWidget {
       );
     }
 
-    Widget buildStatCard({
-      required IconData icon,
-      required Color iconColor,
+    Widget buildNewStatCard({
+      required NoteType type,
       required String value,
       required String label,
     }) {
+      final bool isGoals = type == NoteType.goals;
+      final bool isSuccess = type == NoteType.successes;
+      final bool isNotes = type == NoteType.quickNotes;
+
+      final Gradient backgroundGradient = isSuccess
+          ? LinearGradient(
+              colors: [AppColors.neutralWhite, AppColors.accentSuccessLight],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            )
+          : LinearGradient(
+              colors: isGoals
+                  ? [AppColors.accentSuccessDark, AppColors.accentSuccess]
+                  : [AppColors.accentSuccess, AppColors.leafGreen],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            );
+
+      final BoxBorder border = isSuccess
+          ? Border.all(
+              color: AppColors.accentSuccess.withValues(alpha: 0.3),
+              width: 2,
+            )
+          : Border.all(color: Colors.transparent, width: 0);
+
+      final Color primaryTextColor = isSuccess
+          ? AppColors.accentSuccessDark
+          : AppColors.neutralWhite;
+
+      final Color labelTextColor = isSuccess
+          ? AppColors.accentSuccess
+          : AppColors.neutralWhite.withValues(alpha: 0.8);
+
+      final Widget iconBox = Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          gradient: isSuccess
+              ? LinearGradient(
+                  colors: [
+                    AppColors.accentSuccess,
+                    AppColors.accentSuccessDark,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isSuccess
+              ? null
+              : AppColors.neutralWhite.withValues(alpha: 0.2),
+        ),
+        child: Icon(
+          isGoals
+              ? Icons.my_location
+              : isSuccess
+              ? Icons.emoji_events
+              : Icons.sticky_note_2,
+          color: AppColors.neutralWhite,
+          size: 16,
+        ),
+      );
+
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.neutralWhite,
+          gradient: backgroundGradient,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.secondaryBeigeVariant),
+          border: border,
           boxShadow: const [
             BoxShadow(
               color: AppColors.shadow,
@@ -276,31 +340,97 @@ class HomeScreen extends HookWidget {
             ),
           ],
         ),
-        child: Column(
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
+            Positioned(
+              top: isNotes ? null : 6,
+              right: isNotes ? null : 6,
+              left: isNotes ? 6 : null,
+              bottom: isNotes ? 6 : null,
+              child: Container(
+                width: isSuccess ? 42 : 50,
+                height: isSuccess ? 42 : 50,
+                decoration: BoxDecoration(
+                  color:
+                      (isSuccess
+                              ? AppColors.accentSuccess
+                              : AppColors.neutralWhite)
+                          .withValues(alpha: isSuccess ? 0.06 : 0.12),
+                  shape: BoxShape.circle,
+                ),
               ),
-              child: Icon(icon, color: iconColor, size: 16),
             ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: AppTypography.headlineMedium.copyWith(
-                color: AppColors.primaryBrownLight,
-                fontWeight: AppTypography.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.neutralDarkGray,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                iconBox,
+                const SizedBox(height: 8),
+                Text(
+                  value,
+                  style: AppTypography.headlineMedium.copyWith(
+                    color: primaryTextColor,
+                    fontWeight: AppTypography.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: labelTextColor,
+                    fontWeight: AppTypography.semiBold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Container(
+                      width: isGoals
+                          ? 24
+                          : isSuccess
+                          ? 16
+                          : 20,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isSuccess
+                            ? AppColors.accentSuccess
+                            : AppColors.neutralWhite,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Container(
+                      width: isGoals
+                          ? 8
+                          : isSuccess
+                          ? 8
+                          : 6,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isSuccess
+                            ? AppColors.accentSuccess.withValues(alpha: 0.5)
+                            : AppColors.neutralWhite.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Container(
+                      width: isGoals
+                          ? 12
+                          : isSuccess
+                          ? 12
+                          : 10,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isSuccess
+                            ? AppColors.accentSuccess.withValues(alpha: 0.3)
+                            : AppColors.neutralWhite.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
@@ -313,27 +443,24 @@ class HomeScreen extends HookWidget {
         child: Row(
           children: [
             Expanded(
-              child: buildStatCard(
-                icon: Icons.my_location,
-                iconColor: AppColors.accentInfo,
+              child: buildNewStatCard(
+                type: NoteType.goals,
                 value: '${notesCountByType[NoteType.goals] ?? 0}',
                 label: 'Goals',
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: buildStatCard(
-                icon: Icons.star,
-                iconColor: AppColors.accentWarning,
+              child: buildNewStatCard(
+                type: NoteType.successes,
                 value: '${notesCountByType[NoteType.successes] ?? 0}',
                 label: 'Success',
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: buildStatCard(
-                icon: Icons.edit,
-                iconColor: AppColors.primaryBrown,
+              child: buildNewStatCard(
+                type: NoteType.quickNotes,
                 value: '${notesCountByType[NoteType.quickNotes] ?? 0}',
                 label: 'Notes',
               ),
@@ -357,16 +484,6 @@ class HomeScreen extends HookWidget {
               ),
             ),
             const SizedBox(height: 16),
-            QuickNotesCard(
-              recentNotes: recentNotesByType[NoteType.quickNotes] ?? [],
-              onTap: () => openLibraryPage(NoteType.quickNotes),
-            ),
-            const SizedBox(height: 16),
-            SuccessesCard(
-              recentNotes: recentNotesByType[NoteType.successes] ?? [],
-              onTap: () => openLibraryPage(NoteType.successes),
-            ),
-            const SizedBox(height: 16),
             GoalsCard(
               recentNotes: recentNotesByType[NoteType.goals] ?? [],
               onTap: () => openLibraryPage(NoteType.goals),
@@ -385,6 +502,16 @@ class HomeScreen extends HookWidget {
             InspirationCard(
               recentNotes: recentNotesByType[NoteType.inspiration] ?? [],
               onTap: () => openLibraryPage(NoteType.inspiration),
+            ),
+            const SizedBox(height: 16),
+            QuickNotesCard(
+              recentNotes: recentNotesByType[NoteType.quickNotes] ?? [],
+              onTap: () => openLibraryPage(NoteType.quickNotes),
+            ),
+            const SizedBox(height: 16),
+            SuccessesCard(
+              recentNotes: recentNotesByType[NoteType.successes] ?? [],
+              onTap: () => openLibraryPage(NoteType.successes),
             ),
           ],
         ),

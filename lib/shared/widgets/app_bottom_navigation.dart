@@ -213,13 +213,13 @@ class AppBottomNavigation extends HookWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppColors.neutralBlack.withValues(alpha: 0.08)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(20),
                         border: isSelected
                             ? Border.all(
                                 color: AppColors.neutralBlack.withValues(
@@ -229,9 +229,9 @@ class AppBottomNavigation extends HookWidget {
                               )
                             : null,
                       ),
-                      child: Icon(displayIcon, size: 26, color: iconColor),
+                      child: Icon(displayIcon, size: 24, color: iconColor),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     // Label with better typography
                     Text(
                       item.label,
@@ -256,41 +256,33 @@ class AppBottomNavigation extends HookWidget {
       );
     }
 
-    Widget navigationBar = Container(
-      height:
-          height +
-          (MediaQuery.of(context).padding.bottom > 0
-              ? MediaQuery.of(context).padding.bottom
-              : 0),
-      margin: EdgeInsets.zero,
-      padding: EdgeInsets.only(
-        top: 8,
-        bottom: MediaQuery.of(context).padding.bottom > 0
-            ? MediaQuery.of(context).padding.bottom
-            : 8,
-        left: 8,
-        right: 8,
-      ),
-      decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.neutralWhite,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-        border: const Border(
-          top: BorderSide(color: Color(0xFFE5E7EB), width: 1.0),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadow.withValues(alpha: 0.15),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-            spreadRadius: 2,
+    Widget navigationBar = SafeArea(
+      top: false,
+      child: Container(
+        height: height,
+        margin: EdgeInsets.zero,
+        padding: const EdgeInsets.only(top: 8, bottom: 8, left: 8, right: 8),
+        decoration: BoxDecoration(
+          color: backgroundColor ?? AppColors.neutralWhite,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
           ),
-        ],
-      ),
-      child: Row(
-        children: List.generate(items.length, (index) => buildNavItem(index)),
+          border: const Border(
+            top: BorderSide(color: Color(0xFFE5E7EB), width: 1.0),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.shadow.withValues(alpha: 0.15),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Row(
+          children: List.generate(items.length, (index) => buildNavItem(index)),
+        ),
       ),
     );
 

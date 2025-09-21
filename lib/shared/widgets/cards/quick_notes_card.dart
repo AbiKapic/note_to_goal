@@ -93,49 +93,12 @@ class QuickNotesCard extends HookWidget {
             ],
           ),
           const SizedBox(height: 12),
-          if (recentNotes.isEmpty)
-            Text(
-              'Jot down ideas and inspiration as they come',
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.neutralDarkGray,
-              ),
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: recentNotes.take(2).map((note) {
-                final index = recentNotes.indexOf(note);
-                return Padding(
-                  padding: EdgeInsets.only(
-                    bottom: index < recentNotes.take(2).length - 1 ? 8 : 0,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: AppColors.accentInfo,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          note.title,
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.neutralDarkGray,
-                            fontWeight: AppTypography.medium,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+          Text(
+            'Jot down ideas and inspiration as they come',
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.neutralDarkGray,
             ),
+          ),
         ],
       ),
     );

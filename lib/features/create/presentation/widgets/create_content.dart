@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -85,20 +84,37 @@ class CreateContent extends HookWidget {
         return;
       }
 
+      if (type == CreateType.goals) {
+        final progressText = progressValueController.text.trim();
+        if (progressText.isNotEmpty) {
+          final progress = int.tryParse(progressText);
+          if (progress == null || progress < 0 || progress > 100) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Progress must be a number between 0 and 100',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            );
+            return;
+          }
+        }
+      }
+
       try {
-        // Map CreateType to NoteType
         final noteType = mapCreateTypeToNoteType(type);
         final priority = mapPriorityLevelToNotePriority(selectedPriority.value);
 
-        final note = Note(
-          id: const Uuid().v4(),
+        final note = Note.create(
           title: title,
           description: description,
           type: noteType,
           priority: priority,
-          createdAt: DateTime.now(),
           progressPercent: type == CreateType.goals
-              ? int.tryParse(progressValueController.text)
+              ? int.tryParse(progressValueController.text.trim())
               : null,
           progressUnit: type == CreateType.goals ? unitValue.value : null,
         );
@@ -110,7 +126,7 @@ class CreateContent extends HookWidget {
             SnackBar(
               content: Row(
                 children: [
-                  Icon(Icons.spa, color: AppColors.primaryBrown),
+                  Icon(Icons.check_circle, color: AppColors.accentSuccess),
                   const SizedBox(width: 8),
                   Text(
                     'Item saved successfully! 🌱',
@@ -123,17 +139,27 @@ class CreateContent extends HookWidget {
             ),
           );
 
-          Navigator.of(context).pop();
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (context.mounted) {
+              Navigator.of(context).maybePop();
+            }
+          });
         }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'Failed to save note. Please try again.',
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textPrimary,
-                ),
+              content: Row(
+                children: [
+                  Icon(Icons.error, color: AppColors.accentError),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Failed to save note: ${e.toString()}',
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -142,7 +168,14 @@ class CreateContent extends HookWidget {
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        16,
+        16,
+        MediaQuery.of(context).viewInsets.bottom +
+            MediaQuery.of(context).padding.bottom +
+            140,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -783,6 +816,12 @@ class CreateContent extends HookWidget {
             onPressed: onSave,
             text: 'Save & Grow',
             leadingIcon: Icons.check,
+            backgroundGradient: const LinearGradient(
+              colors: [AppColors.neutralWhite, AppColors.accentSuccessLight],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            foregroundColor: AppColors.accentSuccessDark,
           ),
           AppSpacing.verticalSpaceLarge,
         ],
