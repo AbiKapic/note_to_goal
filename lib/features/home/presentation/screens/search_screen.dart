@@ -4,6 +4,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../services/hive_service.dart';
+import '../../../../shared/models/note_model.dart';
 
 enum ItemType { goal, success, note }
 
@@ -11,141 +13,99 @@ enum ItemPriority { high, medium, low }
 
 enum ItemStatus { completed, notCompleted }
 
-class GrowthItem {
-  const GrowthItem({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.type,
-    required this.priority,
-    required this.status,
-    required this.timestamp,
-    this.progressPercent,
-  });
-
-  final String id;
-  final String title;
-  final String description;
-  final ItemType type;
-  final ItemPriority priority;
-  final ItemStatus status;
-  final DateTime timestamp;
-  final int? progressPercent;
-}
-
 class SearchScreen extends HookWidget {
   const SearchScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    useListenable(HiveService.notesListenable());
     final searchQuery = useState('');
     final selectedPriorities = useState<Set<ItemPriority>>({});
     final selectedStatuses = useState<Set<ItemStatus>>({});
     final selectedTypes = useState<Set<ItemType>>({});
 
-    final items = useMemoized(
-      () => <GrowthItem>[
-        GrowthItem(
-          id: '1',
-          title: 'Learn Spanish Fluently',
-          description:
-              'Complete 30 lessons per month and practice conversation daily',
-          type: ItemType.goal,
-          priority: ItemPriority.high,
-          status: ItemStatus.notCompleted,
-          timestamp: DateTime.now().subtract(const Duration(days: 2)),
-          progressPercent: 50,
-        ),
-        GrowthItem(
-          id: '2',
-          title: 'Learn React Native',
-          description: 'Complete 5 tutorials by end of week',
-          type: ItemType.goal,
-          priority: ItemPriority.medium,
-          status: ItemStatus.notCompleted,
-          timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-          progressPercent: 60,
-        ),
-        GrowthItem(
-          id: '3',
-          title: 'Completed Marathon',
-          description:
-              'Successfully ran my first 42km marathon in under 4 hours!',
-          type: ItemType.success,
-          priority: ItemPriority.medium,
-          status: ItemStatus.completed,
-          timestamp: DateTime.now().subtract(const Duration(days: 7)),
-        ),
-        GrowthItem(
-          id: '4',
-          title: 'Morning Routine Ideas',
-          description:
-              'Meditation, journaling, exercise, and healthy breakfast ideas',
-          type: ItemType.note,
-          priority: ItemPriority.low,
-          status: ItemStatus.notCompleted,
-          timestamp: DateTime.now().subtract(const Duration(days: 3)),
-        ),
-        GrowthItem(
-          id: '5',
-          title: 'Mobile App Development',
-          description: 'Build a habit tracking app with gamification features',
-          type: ItemType.note,
-          priority: ItemPriority.high,
-          status: ItemStatus.notCompleted,
-          timestamp: DateTime.now().subtract(const Duration(days: 1)),
-        ),
-        GrowthItem(
-          id: '6',
-          title: 'Read 12 Books This Year',
-          description: 'Complete 1 book per month with monthly reviews',
-          type: ItemType.goal,
-          priority: ItemPriority.medium,
-          status: ItemStatus.notCompleted,
-          timestamp: DateTime.now().subtract(const Duration(days: 5)),
-          progressPercent: 25,
-        ),
-      ],
-    );
+    final allNotes = HiveService.getAllNotes();
 
-    List<GrowthItem> filteredItems() {
-      return items.where((i) {
+    ItemPriority notePriorityToItemPriority(PriorityLevel priority) {
+      switch (priority) {
+        case PriorityLevel.high:
+          return ItemPriority.high;
+        case PriorityLevel.medium:
+          return ItemPriority.medium;
+        case PriorityLevel.low:
+          return ItemPriority.low;
+      }
+    }
+
+    ItemStatus noteStatusToItemStatus(Note note) {
+      return (note.progressPercent ?? 0) >= 100
+          ? ItemStatus.completed
+          : ItemStatus.notCompleted;
+    }
+
+    ItemType noteTypeToItemType(NoteType type) {
+      switch (type) {
+        case NoteType.goals:
+          return ItemType.goal;
+        case NoteType.successes:
+          return ItemType.success;
+        case NoteType.quickNotes:
+        case NoteType.journal:
+        case NoteType.habits:
+        case NoteType.inspiration:
+          return ItemType.note;
+      }
+    }
+
+    List<Note> filteredItems() {
+      return allNotes.where((note) {
         final matchesQuery =
             searchQuery.value.isEmpty ||
-            i.title.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
-            i.description.toLowerCase().contains(
+            note.title.toLowerCase().contains(
+              searchQuery.value.toLowerCase(),
+            ) ||
+            note.description.toLowerCase().contains(
               searchQuery.value.toLowerCase(),
             );
         final matchesPriority =
             selectedPriorities.value.isEmpty ||
-            selectedPriorities.value.contains(i.priority);
+            selectedPriorities.value.contains(
+              notePriorityToItemPriority(note.priority),
+            );
         final matchesStatus =
             selectedStatuses.value.isEmpty ||
-            selectedStatuses.value.contains(i.status);
+            selectedStatuses.value.contains(noteStatusToItemStatus(note));
         final matchesType =
-            selectedTypes.value.isEmpty || selectedTypes.value.contains(i.type);
+            selectedTypes.value.isEmpty ||
+            selectedTypes.value.contains(noteTypeToItemType(note.type));
         return matchesQuery && matchesPriority && matchesStatus && matchesType;
       }).toList();
     }
 
-    Color typeColor(ItemType type) {
+    Color typeColor(NoteType type) {
       switch (type) {
-        case ItemType.goal:
+        case NoteType.goals:
           return AppColors.accentInfo;
-        case ItemType.success:
+        case NoteType.successes:
           return AppColors.accentWarning;
-        case ItemType.note:
+        case NoteType.quickNotes:
+        case NoteType.journal:
+        case NoteType.habits:
+        case NoteType.inspiration:
           return AppColors.primaryBrown;
       }
     }
 
-    IconData typeIcon(ItemType type) {
+    IconData typeIcon(NoteType type) {
       switch (type) {
-        case ItemType.goal:
+        case NoteType.goals:
           return Icons.my_location;
-        case ItemType.success:
+        case NoteType.successes:
           return Icons.emoji_events;
-        case ItemType.note:
+        case NoteType.quickNotes:
+        case NoteType.journal:
+        case NoteType.habits:
+        case NoteType.inspiration:
           return Icons.edit;
       }
     }
@@ -270,7 +230,7 @@ class SearchScreen extends HookWidget {
                           fontWeight: AppTypography.bold,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         'Select multiple filters to refine your search',
                         style: AppTypography.bodySmall.copyWith(
@@ -304,8 +264,9 @@ class SearchScreen extends HookWidget {
                             label: 'High Priority',
                             onTap: () {
                               final next = {...selectedPriorities.value};
-                              if (!next.add(ItemPriority.high))
+                              if (!next.add(ItemPriority.high)) {
                                 next.remove(ItemPriority.high);
+                              }
                               selectedPriorities.value = next;
                             },
                             selectedBorder: AppColors.accentError,
@@ -326,8 +287,9 @@ class SearchScreen extends HookWidget {
                             label: 'Medium Priority',
                             onTap: () {
                               final next = {...selectedPriorities.value};
-                              if (!next.add(ItemPriority.medium))
+                              if (!next.add(ItemPriority.medium)) {
                                 next.remove(ItemPriority.medium);
+                              }
                               selectedPriorities.value = next;
                             },
                             selectedBorder: AppColors.accentWarning,
@@ -348,8 +310,9 @@ class SearchScreen extends HookWidget {
                             label: 'Low Priority',
                             onTap: () {
                               final next = {...selectedPriorities.value};
-                              if (!next.add(ItemPriority.low))
+                              if (!next.add(ItemPriority.low)) {
                                 next.remove(ItemPriority.low);
+                              }
                               selectedPriorities.value = next;
                             },
                             selectedBorder: AppColors.accentSuccess,
@@ -379,8 +342,9 @@ class SearchScreen extends HookWidget {
                             label: 'Completed',
                             onTap: () {
                               final next = {...selectedStatuses.value};
-                              if (!next.add(ItemStatus.completed))
+                              if (!next.add(ItemStatus.completed)) {
                                 next.remove(ItemStatus.completed);
+                              }
                               selectedStatuses.value = next;
                             },
                             selectedBorder: AppColors.accentSuccess,
@@ -397,8 +361,9 @@ class SearchScreen extends HookWidget {
                             label: 'Not Completed',
                             onTap: () {
                               final next = {...selectedStatuses.value};
-                              if (!next.add(ItemStatus.notCompleted))
+                              if (!next.add(ItemStatus.notCompleted)) {
                                 next.remove(ItemStatus.notCompleted);
+                              }
                               selectedStatuses.value = next;
                             },
                             selectedBorder: AppColors.accentWarning,
@@ -425,11 +390,12 @@ class SearchScreen extends HookWidget {
                               Icons.edit,
                               color: AppColors.primaryBrown,
                             ),
-                            label: 'Note',
+                            label: 'Notes',
                             onTap: () {
                               final next = {...selectedTypes.value};
-                              if (!next.add(ItemType.note))
+                              if (!next.add(ItemType.note)) {
                                 next.remove(ItemType.note);
+                              }
                               selectedTypes.value = next;
                             },
                           ),
@@ -442,11 +408,12 @@ class SearchScreen extends HookWidget {
                               Icons.my_location,
                               color: AppColors.accentInfo,
                             ),
-                            label: 'Goal',
+                            label: 'Goals',
                             onTap: () {
                               final next = {...selectedTypes.value};
-                              if (!next.add(ItemType.goal))
+                              if (!next.add(ItemType.goal)) {
                                 next.remove(ItemType.goal);
+                              }
                               selectedTypes.value = next;
                             },
                           ),
@@ -459,11 +426,12 @@ class SearchScreen extends HookWidget {
                               Icons.emoji_events,
                               color: AppColors.accentWarning,
                             ),
-                            label: 'Success',
+                            label: 'Successes',
                             onTap: () {
                               final next = {...selectedTypes.value};
-                              if (!next.add(ItemType.success))
+                              if (!next.add(ItemType.success)) {
                                 next.remove(ItemType.success);
+                              }
                               selectedTypes.value = next;
                             },
                           ),
@@ -507,117 +475,222 @@ class SearchScreen extends HookWidget {
 
     Widget buildHeader() {
       return Container(
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 24,
-          bottom: 16,
+        padding: EdgeInsets.only(
+          left: AppSpacing.lg,
+          right: AppSpacing.lg,
+          top: 24 + MediaQuery.of(context).padding.top,
+          bottom: AppSpacing.lg,
         ),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.primaryBrown, AppColors.primaryBrownVariant],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              AppColors.secondaryBeigeDark,
+              AppColors.softCream,
+              AppColors.leafGreen,
+            ],
+            stops: [0.0, 0.2, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 12,
+              offset: Offset(0, 6),
+              spreadRadius: 2,
+            ),
+          ],
         ),
-        child: SafeArea(
-          bottom: false,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.maybePop(context);
-                    },
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryBeigeVariant,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: AppColors.primaryBrown,
-                        size: 18,
-                      ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.maybePop(context);
+                  },
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.secondaryBeigeVariant,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      color: AppColors.primaryBrown,
+                      size: 18,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Search & Discover',
-                        style: AppTypography.headlineSmall.copyWith(
-                          color: AppColors.textOnBrown,
-                          fontWeight: AppTypography.bold,
-                        ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Search & Discover',
+                      style: AppTypography.headlineSmall.copyWith(
+                        color: AppColors.primaryBrown,
+                        fontWeight: AppTypography.bold,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Find your growth journey',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.secondaryBeigeDark,
-                        ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Find your growth journey',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.primaryBrown,
+                        fontWeight: AppTypography.semiBold,
+                        letterSpacing: 0.5,
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       );
     }
 
     Widget buildSearchBar() {
+      final isSearching = useState(false);
+      final searchFocusNode = useFocusNode();
+
       return Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         child: Container(
+          height: 55, // Compact height for search bar
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: 10, // Minimal vertical padding since height is reduced
+          ),
           decoration: BoxDecoration(
             color: AppColors.neutralWhite,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.secondaryBeigeVariant),
-            boxShadow: const [
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isSearching.value
+                  ? AppColors.primaryBrownVariant
+                  : AppColors.secondaryBeigeVariant,
+              width: isSearching.value ? 2 : 1,
+            ),
+            boxShadow: [
               BoxShadow(
-                color: AppColors.shadow,
-                blurRadius: 6,
-                offset: Offset(0, 2),
+                color: AppColors.shadow.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+                spreadRadius: 2,
+              ),
+              BoxShadow(
+                color: AppColors.shadow.withValues(alpha: 0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Row(
             children: [
-              const SizedBox(width: 12),
-              const Icon(Icons.search, color: AppColors.neutralMediumGray),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  onChanged: (v) => searchQuery.value = v,
-                  decoration: const InputDecoration(
-                    hintText: 'Search goals, notes, successes...',
-                    border: InputBorder.none,
-                  ),
+              const SizedBox(width: AppSpacing.xs),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 18,
+                height: 18,
+                child: Icon(
+                  Icons.search,
+                  color: isSearching.value
+                      ? AppColors.primaryBrownVariant
+                      : AppColors.neutralMediumGray,
+                  size: 18,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: TextField(
+                  focusNode: searchFocusNode,
+                  onChanged: (v) {
+                    searchQuery.value = v;
+                    isSearching.value =
+                        v.isNotEmpty || searchFocusNode.hasFocus;
+                  },
+                  onTap: () => isSearching.value = true,
+                  onTapOutside: (_) {
+                    if (searchQuery.value.isEmpty) {
+                      isSearching.value = false;
+                    }
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    hintStyle: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.neutralMediumGray,
+                      fontWeight: AppTypography.regular,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.xs,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.neutralWhite,
+                  ),
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: AppTypography.medium,
+                  ),
+                  cursorColor: AppColors.primaryBrownVariant,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              if (searchQuery.value.isNotEmpty || searchFocusNode.hasFocus)
+                InkWell(
+                  onTap: () {
+                    searchQuery.value = '';
+                    isSearching.value = false;
+                    searchFocusNode.unfocus();
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(AppSpacing.xs),
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: AppColors.neutralLightGray.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      color: AppColors.neutralMediumGray,
+                      size: 16,
+                    ),
+                  ),
+                )
+              else
+                const SizedBox(width: 0),
+              const SizedBox(width: AppSpacing.xs),
               InkWell(
-                onTap: openFilterSheet,
+                onTap: () {
+                  isSearching.value = false;
+                  openFilterSheet();
+                },
+                borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  margin: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(AppSpacing.sm),
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBrown,
-                    borderRadius: BorderRadius.circular(8),
+                    color: AppColors.leafGreen,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.leafGreen.withValues(alpha: 0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: const Icon(
                     Icons.filter_list,
                     color: AppColors.neutralWhite,
-                    size: 16,
+                    size: 12,
                   ),
                 ),
               ),
@@ -663,11 +736,15 @@ class SearchScreen extends HookWidget {
         );
       }
       for (final t in selectedTypes.value) {
-        Color c = typeColor(t);
+        Color c = t == ItemType.goal
+            ? AppColors.accentInfo
+            : t == ItemType.success
+            ? AppColors.accentWarning
+            : AppColors.primaryBrown;
         String l = t == ItemType.goal
             ? 'Goals'
             : t == ItemType.success
-            ? 'Success'
+            ? 'Successes'
             : 'Notes';
         chips.add(
           _FilterChip(
@@ -682,14 +759,24 @@ class SearchScreen extends HookWidget {
         );
       }
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Wrap(spacing: 8, runSpacing: 8, children: chips),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        child: Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: chips,
+        ),
       );
     }
 
-    Widget buildItemCard(GrowthItem item) {
+    Widget buildItemCard(Note note) {
+      final itemStatus = noteStatusToItemStatus(note);
+
       return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        margin: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.sm,
+        ),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
           color: AppColors.neutralWhite,
           borderRadius: BorderRadius.circular(16),
@@ -702,151 +789,154 @@ class SearchScreen extends HookWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: typeColor(item.type).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(typeIcon(item.type), color: typeColor(item.type)),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: typeColor(note.type).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.titleMedium.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: AppTypography.semiBold,
-                            ),
+              child: Icon(typeIcon(note.type), color: typeColor(note.type)),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          note.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.titleMedium.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: AppTypography.semiBold,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: priorityDot(
+                                notePriorityToItemPriority(note.priority),
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            priorityLabel(
+                              notePriorityToItemPriority(note.priority),
+                            ),
+                            style: AppTypography.labelSmall.copyWith(
+                              color: priorityDot(
+                                notePriorityToItemPriority(note.priority),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    note.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        note.type == NoteType.goals
+                            ? 'Goal'
+                            : note.type == NoteType.successes
+                            ? 'Success'
+                            : 'Note',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.textTertiary,
+                        ),
+                      ),
+                      if (note.type == NoteType.goals &&
+                          note.progressPercent != null)
                         Row(
                           children: [
                             Container(
-                              width: 8,
-                              height: 8,
+                              width: 64,
+                              height: 4,
                               decoration: BoxDecoration(
-                                color: priorityDot(item.priority),
-                                shape: BoxShape.circle,
+                                color: AppColors.neutralLightGray,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width:
+                                      64 *
+                                      (note.progressPercent!.clamp(0, 100) /
+                                          100),
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accentSuccess,
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: AppSpacing.sm),
                             Text(
-                              priorityLabel(item.priority),
+                              '${note.progressPercent}%',
                               style: AppTypography.labelSmall.copyWith(
-                                color: priorityDot(item.priority),
+                                color: AppColors.accentSuccess,
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Row(
+                          children: [
+                            Icon(
+                              itemStatus == ItemStatus.completed
+                                  ? Icons.check_circle
+                                  : Icons.bookmark,
+                              size: 14,
+                              color: itemStatus == ItemStatus.completed
+                                  ? AppColors.accentSuccess
+                                  : AppColors.primaryBrown,
+                            ),
+                            const SizedBox(width: AppSpacing.xs),
+                            Text(
+                              itemStatus == ItemStatus.completed
+                                  ? 'Completed'
+                                  : 'Saved',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: itemStatus == ItemStatus.completed
+                                    ? AppColors.accentSuccess
+                                    : AppColors.primaryBrown,
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      item.description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          item.type == ItemType.goal
-                              ? 'Goal'
-                              : item.type == ItemType.success
-                              ? 'Success'
-                              : 'Note',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                        if (item.type == ItemType.goal &&
-                            item.progressPercent != null)
-                          Row(
-                            children: [
-                              Container(
-                                width: 64,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: AppColors.neutralLightGray,
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Container(
-                                    width:
-                                        64 *
-                                        (item.progressPercent!.clamp(0, 100) /
-                                            100),
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.accentSuccess,
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${item.progressPercent}%',
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: AppColors.accentSuccess,
-                                ),
-                              ),
-                            ],
-                          )
-                        else
-                          Row(
-                            children: [
-                              Icon(
-                                item.status == ItemStatus.completed
-                                    ? Icons.check_circle
-                                    : Icons.bookmark,
-                                size: 14,
-                                color: item.status == ItemStatus.completed
-                                    ? AppColors.accentSuccess
-                                    : AppColors.primaryBrown,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                item.status == ItemStatus.completed
-                                    ? 'Completed'
-                                    : 'Saved',
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: item.status == ItemStatus.completed
-                                      ? AppColors.accentSuccess
-                                      : AppColors.primaryBrown,
-                                ),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
@@ -855,46 +945,63 @@ class SearchScreen extends HookWidget {
 
     return Scaffold(
       backgroundColor: AppColors.secondaryBeigeDark,
-      body: Column(
-        children: [
-          buildHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildSearchBar(),
-                  buildActiveFilters(),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Your Growth Items',
-                          style: AppTypography.titleMedium.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: AppTypography.semiBold,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.secondaryBeigeLight,
+              AppColors.neutralWhite,
+              AppColors.accentSuccessLight,
+            ],
+            stops: [0.0, 0.2, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          children: [
+            buildHeader(),
+            const SizedBox(height: AppSpacing.lg),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildSearchBar(),
+                    buildActiveFilters(),
+                    const SizedBox(height: AppSpacing.sm),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Your Growth Items',
+                            style: AppTypography.titleMedium.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: AppTypography.semiBold,
+                            ),
                           ),
-                        ),
-                        Text(
-                          '${results.length} items',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.neutralDarkGray,
+                          Text(
+                            '${results.length} items',
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.neutralDarkGray,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...results.map(buildItemCard),
-                  const SizedBox(height: 88),
-                ],
+                    const SizedBox(height: AppSpacing.sm),
+                    ...results.map(buildItemCard),
+                    const SizedBox(height: AppSpacing.massive),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -914,10 +1021,20 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(999),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.shadow,
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -929,15 +1046,15 @@ class _FilterChip extends StatelessWidget {
               fontWeight: AppTypography.semiBold,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.sm),
           InkWell(
             onTap: onRemove,
             child: Container(
-              width: 18,
-              height: 18,
+              width: 20,
+              height: 20,
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: BorderRadius.circular(9),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
                 Icons.close,

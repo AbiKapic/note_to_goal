@@ -62,9 +62,9 @@ class AppColors {
   static const Color buttonOutlinedText = Color(0xFF8B4513);
 
   static const Color navigationBackground = Color(0xFFFFFFFF);
-  static const Color navigationSelected = Color(0xFF8B4513);
+  static const Color navigationSelected = Color(0xFF7FB069); // leafGreen
   static const Color navigationUnselected = Color(0xFFB0B0B0);
-  static const Color navigationSelectedText = Color(0xFF8B4513);
+  static const Color navigationSelectedText = Color(0xFF7FB069); // leafGreen
   static const Color navigationUnselectedText = Color(0xFF666666);
 
   static const Color inputBackground = Color(0xFFFAEBD7);
@@ -85,7 +85,6 @@ class AppColors {
 
   static const Color shadow = Color(0x1A8B4513);
 
-  // HTML Design Colors
   static const Color treeBrown = Color(0xFF8B5A3C);
   static const Color leafGreen = Color(0xFF7FB069);
   static const Color warmYellow = Color(0xFFFFF3B8);

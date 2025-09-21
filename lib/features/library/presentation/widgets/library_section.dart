@@ -49,46 +49,35 @@ class LibrarySection extends StatelessWidget {
     return AppColors.treeBrown;
   }
 
-  Color _getBorderColor() {
-    if (borderColor != null) return borderColor!;
-    switch (type) {
-      case LibrarySectionType.completed:
-        return AppColors.accentSuccess.withOpacity(0.2);
-      case LibrarySectionType.favorites:
-        return AppColors.accentWarning.withOpacity(0.2);
-      case LibrarySectionType.failed:
-        return AppColors.accentError.withOpacity(0.2);
-      case LibrarySectionType.notes:
-        return AppColors.leafGreen.withOpacity(0.2);
-    }
-  }
-
   Color _getBackgroundColor() {
     switch (type) {
       case LibrarySectionType.completed:
-        return AppColors.accentSuccess.withOpacity(0.1);
+        return AppColors.accentSuccess.withValues(alpha: 0.1);
       case LibrarySectionType.favorites:
-        return AppColors.accentWarning.withOpacity(0.1);
+        return AppColors.accentWarning.withValues(alpha: 0.1);
       case LibrarySectionType.failed:
-        return AppColors.accentError.withOpacity(0.1);
+        return AppColors.accentError.withValues(alpha: 0.1);
       case LibrarySectionType.notes:
-        return AppColors.leafGreen.withOpacity(0.1);
+        return AppColors.leafGreen.withValues(alpha: 0.1);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
-        color: AppColors.neutralWhite.withOpacity(0.7),
+        color: AppColors.neutralWhite,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _getBorderColor(), width: 1),
-        boxShadow: [
+        border: Border.all(color: AppColors.secondaryBeigeVariant),
+        boxShadow: const [
           BoxShadow(
             color: AppColors.shadow,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            blurRadius: 6,
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -97,10 +86,10 @@ class LibrarySection extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
-          splashColor: _getIconColor().withOpacity(0.1),
-          highlightColor: _getIconColor().withOpacity(0.05),
+          splashColor: _getIconColor().withValues(alpha: 0.1),
+          highlightColor: _getIconColor().withValues(alpha: 0.05),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Row(
               children: [
                 Container(
@@ -112,7 +101,7 @@ class LibrarySection extends StatelessWidget {
                   ),
                   child: Icon(icon, size: 24, color: _getIconColor()),
                 ),
-                AppSpacing.horizontalSpaceLarge,
+                const SizedBox(width: AppSpacing.lg),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,14 +116,14 @@ class LibrarySection extends StatelessWidget {
                             ),
                           ),
                           if (count != null) ...[
-                            AppSpacing.horizontalSpaceSmall,
+                            const SizedBox(width: AppSpacing.sm),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
+                                horizontal: AppSpacing.sm,
+                                vertical: AppSpacing.xs,
                               ),
                               decoration: BoxDecoration(
-                                color: _getIconColor().withOpacity(0.1),
+                                color: _getIconColor().withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -160,7 +149,7 @@ class LibrarySection extends StatelessWidget {
                 ),
                 Icon(
                   Icons.chevron_right,
-                  color: AppColors.treeBrown.withOpacity(0.5),
+                  color: AppColors.treeBrown.withValues(alpha: 0.5),
                   size: 20,
                 ),
               ],

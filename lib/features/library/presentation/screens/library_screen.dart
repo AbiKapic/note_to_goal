@@ -2,332 +2,320 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../widgets/library_header.dart';
-import '../widgets/library_section.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../services/hive_service.dart';
+import '../../../../shared/models/note_model.dart';
 
 class LibraryScreen extends HookWidget {
   const LibraryScreen({super.key});
 
-  void _handleSectionTap(LibrarySectionType type) {
-    switch (type) {
-      case LibrarySectionType.completed:
-        // Navigate to completed goals screen
-        break;
-      case LibrarySectionType.favorites:
-        // Navigate to favorites screen
-        break;
-      case LibrarySectionType.failed:
-        // Navigate to failed goals screen
-        break;
-      case LibrarySectionType.notes:
-        // Navigate to all notes screen
-        break;
-    }
-  }
-
-  void _handleFilterTap() {
-    // Handle filter button tap
-  }
-
-  void _handleSearchTap() {
-    // Handle search button tap
-  }
-
   @override
   Widget build(BuildContext context) {
+    final arguments =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final noteType = arguments?['noteType'] as NoteType?;
+
+    if (noteType == null) {
+      return _buildAllNotesLibrary(context);
+    }
+
+    return _buildTypedLibrary(context, noteType);
+  }
+
+  Widget _buildAllNotesLibrary(BuildContext context) {
+    useListenable(HiveService.notesListenable());
+    final allNotes = HiveService.getAllNotes()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
     return Scaffold(
-      backgroundColor: AppColors.warmYellow,
+      backgroundColor: AppColors.secondaryBeigeDark,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'All Notes',
+          style: AppTypography.titleLarge.copyWith(
+            color: AppColors.primaryBrown,
+            fontWeight: AppTypography.semiBold,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.primaryBrown),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.warmYellow,
-                AppColors.softCream,
-                AppColors.leafGreen.withOpacity(0.3),
+                AppColors.secondaryBeigeLight,
+                AppColors.neutralWhite,
+                AppColors.accentSuccessLight,
               ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              stops: [0.0, 0.2, 1.0],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    // Header
-                    LibraryHeader(
-                      title: 'Library',
-                      onFilterTap: _handleFilterTap,
-                      onSearchTap: _handleSearchTap,
-                    ),
+          child: allNotes.isEmpty
+              ? _buildEmptyState()
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: allNotes.length,
+                  itemBuilder: (context, index) {
+                    final note = allNotes[index];
+                    return _buildNoteCard(context, note);
+                  },
+                ),
+        ),
+      ),
+    );
+  }
 
-                    // Top Navigation Bar (similar to bottom navigation but horizontal)
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: AppColors.neutralWhite.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.shadow,
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          _buildTopNavItem(
-                            context: context,
-                            icon: Icons.check_circle,
-                            label: 'Completed',
-                            isSelected: true,
-                            color: AppColors.accentSuccess,
-                          ),
-                          _buildTopNavItem(
-                            context: context,
-                            icon: Icons.favorite,
-                            label: 'Favorites',
-                            isSelected: false,
-                            color: AppColors.accentWarning,
-                          ),
-                          _buildTopNavItem(
-                            context: context,
-                            icon: Icons.cancel,
-                            label: 'Failed',
-                            isSelected: false,
-                            color: AppColors.accentError,
-                          ),
-                          _buildTopNavItem(
-                            context: context,
-                            icon: Icons.note,
-                            label: 'Notes',
-                            isSelected: false,
-                            color: AppColors.leafGreen,
-                          ),
-                        ],
-                      ),
-                    ),
+  Widget _buildTypedLibrary(BuildContext context, NoteType noteType) {
+    useListenable(HiveService.notesListenable());
+    final notes = HiveService.getNotesByType(noteType);
 
-                    // Main Content
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Section Title
-                          Text(
-                            'Your Library',
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(
-                                  color: AppColors.treeBrown,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          AppSpacing.verticalSpaceMedium,
+    String getLibraryTitle(NoteType type) {
+      switch (type) {
+        case NoteType.quickNotes:
+          return 'Quick Notes';
+        case NoteType.successes:
+          return 'Successes';
+        case NoteType.goals:
+          return 'Goals';
+        case NoteType.journal:
+          return 'Journal';
+        case NoteType.habits:
+          return 'Habits';
+        case NoteType.inspiration:
+          return 'Inspiration';
+      }
+    }
 
-                          // Library Sections
-                          Column(
-                            children: [
-                              LibrarySection(
-                                type: LibrarySectionType.completed,
-                                title: 'Completed Goals',
-                                subtitle:
-                                    'Goals you have successfully achieved',
-                                icon: Icons.check_circle,
-                                count: 24,
-                                onTap: () => _handleSectionTap(
-                                  LibrarySectionType.completed,
-                                ),
-                              ),
-                              LibrarySection(
-                                type: LibrarySectionType.favorites,
-                                title: 'Favorite Goals',
-                                subtitle: 'Goals you have marked as favorites',
-                                icon: Icons.favorite,
-                                count: 8,
-                                onTap: () => _handleSectionTap(
-                                  LibrarySectionType.favorites,
-                                ),
-                              ),
-                              LibrarySection(
-                                type: LibrarySectionType.failed,
-                                title: 'Failed Goals',
-                                subtitle: 'Goals that were not completed',
-                                icon: Icons.cancel,
-                                count: 5,
-                                onTap: () => _handleSectionTap(
-                                  LibrarySectionType.failed,
-                                ),
-                              ),
-                              LibrarySection(
-                                type: LibrarySectionType.notes,
-                                title: 'All Notes',
-                                subtitle: 'Personal notes and reminders',
-                                icon: Icons.note,
-                                count: 156,
-                                onTap: () =>
-                                    _handleSectionTap(LibrarySectionType.notes),
-                              ),
-                            ],
-                          ),
+    return Scaffold(
+      backgroundColor: AppColors.secondaryBeigeDark,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          getLibraryTitle(noteType),
+          style: AppTypography.titleLarge.copyWith(
+            color: AppColors.primaryBrown,
+            fontWeight: AppTypography.semiBold,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.primaryBrown),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.secondaryBeigeLight,
+                AppColors.neutralWhite,
+                AppColors.accentSuccessLight,
+              ],
+              stops: [0.0, 0.2, 1.0],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: notes.isEmpty
+              ? _buildEmptyState()
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: notes.length,
+                  itemBuilder: (context, index) {
+                    final note = notes[index];
+                    return _buildNoteCard(context, note);
+                  },
+                ),
+        ),
+      ),
+    );
+  }
 
-                          // Stats Overview
-                          AppSpacing.verticalSpaceLarge,
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: AppColors.neutralWhite.withOpacity(0.7),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: AppColors.treeBrown.withOpacity(0.2),
-                                width: 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.shadow,
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Library Statistics',
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(
-                                        color: AppColors.treeBrown,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                                AppSpacing.verticalSpaceMedium,
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    _buildStatItem(
-                                      context,
-                                      '24',
-                                      'Completed',
-                                      AppColors.accentSuccess,
-                                    ),
-                                    _buildStatItem(
-                                      context,
-                                      '8',
-                                      'Favorites',
-                                      AppColors.accentWarning,
-                                    ),
-                                    _buildStatItem(
-                                      context,
-                                      '5',
-                                      'Failed',
-                                      AppColors.accentError,
-                                    ),
-                                    _buildStatItem(
-                                      context,
-                                      '156',
-                                      'Notes',
-                                      AppColors.leafGreen,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.note_add, size: 64, color: AppColors.neutralMediumGray),
+          const SizedBox(height: 16),
+          Text(
+            'No notes yet',
+            style: AppTypography.titleMedium.copyWith(
+              color: AppColors.primaryBrown,
+              fontWeight: AppTypography.semiBold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Create your first note to get started',
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.neutralMediumGray,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-                    // Bottom Decoration
-                    Container(
-                      height: 80,
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.eco,
-                        size: 48,
-                        color: AppColors.treeBrown.withOpacity(0.2),
-                      ),
-                    ),
-                  ],
+  Widget _buildNoteCard(BuildContext context, Note note) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.neutralWhite,
+        borderRadius: BorderRadius.circular(16),
+        border: Border(
+          left: BorderSide(color: _getNoteTypeColor(note.type), width: 4),
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.shadow,
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  note.title,
+                  style: AppTypography.titleMedium.copyWith(
+                    color: AppColors.primaryBrownLight,
+                    fontWeight: AppTypography.semiBold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _getPriorityColor(
+                    note.priority,
+                  ).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  note.priority.name.toUpperCase(),
+                  style: AppTypography.labelSmall.copyWith(
+                    color: _getPriorityColor(note.priority),
+                    fontWeight: AppTypography.semiBold,
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTopNavItem({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-    required Color color,
-  }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isSelected ? color : AppColors.treeBrown.withOpacity(0.5),
+          const SizedBox(height: 8),
+          Text(
+            note.description,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.neutralDarkGray,
             ),
-            AppSpacing.verticalSpaceTiny,
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: isSelected
-                    ? color
-                    : AppColors.treeBrown.withOpacity(0.5),
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                fontSize: 10,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatItem(
-    BuildContext context,
-    String value,
-    String label,
-    Color color,
-  ) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: color,
           ),
-        ),
-        AppSpacing.verticalSpaceTiny,
-        Text(
-          label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _getFormattedDate(note.createdAt),
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.neutralMediumGray,
+                ),
+              ),
+              if (note.progressPercent != null)
+                Row(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.neutralLightGray,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          width: 60 * (note.progressPercent! / 100),
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: AppColors.accentSuccess,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${note.progressPercent}%',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: AppColors.accentSuccess,
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ],
+      ),
     );
+  }
+
+  Color _getNoteTypeColor(NoteType type) {
+    switch (type) {
+      case NoteType.quickNotes:
+        return AppColors.accentInfo;
+      case NoteType.successes:
+        return AppColors.accentSuccess;
+      case NoteType.goals:
+        return AppColors.accentWarning;
+      case NoteType.journal:
+        return AppColors.accentError;
+      case NoteType.habits:
+        return AppColors.leafGreen;
+      case NoteType.inspiration:
+        return AppColors.accentError;
+    }
+  }
+
+  Color _getPriorityColor(PriorityLevel priority) {
+    switch (priority) {
+      case PriorityLevel.high:
+        return AppColors.accentError;
+      case PriorityLevel.medium:
+        return AppColors.accentWarning;
+      case PriorityLevel.low:
+        return AppColors.accentSuccess;
+    }
+  }
+
+  String _getFormattedDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0) {
+      return 'Today';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} days ago';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
   }
 }

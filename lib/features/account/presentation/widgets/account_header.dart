@@ -23,10 +23,10 @@ class AccountHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.neutralWhite.withOpacity(0.8),
+        color: AppColors.neutralWhite.withValues(alpha: 0.8),
         border: Border(
           bottom: BorderSide(
-            color: AppColors.treeBrown.withOpacity(0.2),
+            color: AppColors.treeBrown.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -47,7 +47,7 @@ class AccountHeader extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.treeBrown.withOpacity(0.1),
+                  color: AppColors.treeBrown.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -86,7 +86,7 @@ class AccountHeader extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.treeBrown.withOpacity(0.1),
+                color: AppColors.treeBrown.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(settingsIcon, color: AppColors.treeBrown, size: 20),

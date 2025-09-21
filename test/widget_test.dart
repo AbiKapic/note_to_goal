@@ -10,7 +10,7 @@ import 'package:note_to_goal/app.dart';
 
 void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(const App());
+    await tester.pumpWidget(App(apiBaseUrl: 'http://localhost:8080'));
 
     await tester.pumpAndSettle();
 

@@ -24,6 +24,7 @@ class AccountMenuItem extends StatelessWidget {
     this.iconColor,
     this.titleColor,
     this.borderColor,
+    this.isLoading = false,
   });
 
   final AccountMenuItemType type;
@@ -34,6 +35,7 @@ class AccountMenuItem extends StatelessWidget {
   final Color? iconColor;
   final Color? titleColor;
   final Color? borderColor;
+  final bool isLoading;
 
   Color _getIconColor() {
     if (iconColor != null) return iconColor!;
@@ -69,28 +71,28 @@ class AccountMenuItem extends StatelessWidget {
     if (borderColor != null) return borderColor!;
     switch (type) {
       case AccountMenuItemType.signOut:
-        return Colors.orange.withOpacity(0.2);
+        return Colors.orange.withValues(alpha: 0.2);
       case AccountMenuItemType.deleteAccount:
-        return Colors.red.withOpacity(0.2);
+        return Colors.red.withValues(alpha: 0.2);
       default:
-        return AppColors.treeBrown.withOpacity(0.2);
+        return AppColors.treeBrown.withValues(alpha: 0.2);
     }
   }
 
   Color _getBackgroundColor() {
     switch (type) {
       case AccountMenuItemType.personalInfo:
-        return AppColors.leafGreen.withOpacity(0.2);
+        return AppColors.leafGreen.withValues(alpha: 0.2);
       case AccountMenuItemType.successOverview:
-        return AppColors.treeBrown.withOpacity(0.2);
+        return AppColors.treeBrown.withValues(alpha: 0.2);
       case AccountMenuItemType.noteForYourself:
-        return AppColors.warmYellow.withOpacity(0.6);
+        return AppColors.warmYellow.withValues(alpha: 0.6);
       case AccountMenuItemType.notifications:
-        return Colors.blue.withOpacity(0.1);
+        return Colors.blue.withValues(alpha: 0.1);
       case AccountMenuItemType.signOut:
-        return Colors.orange.withOpacity(0.1);
+        return Colors.orange.withValues(alpha: 0.1);
       case AccountMenuItemType.deleteAccount:
-        return Colors.red.withOpacity(0.1);
+        return Colors.red.withValues(alpha: 0.1);
     }
   }
 
@@ -99,7 +101,7 @@ class AccountMenuItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.neutralWhite.withOpacity(0.7),
+        color: AppColors.neutralWhite.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _getBorderColor(), width: 1),
         boxShadow: [
@@ -115,8 +117,8 @@ class AccountMenuItem extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
-          splashColor: _getIconColor().withOpacity(0.1),
-          highlightColor: _getIconColor().withOpacity(0.05),
+          splashColor: _getIconColor().withValues(alpha: 0.1),
+          highlightColor: _getIconColor().withValues(alpha: 0.05),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -128,7 +130,18 @@ class AccountMenuItem extends StatelessWidget {
                     color: _getBackgroundColor(),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, size: 24, color: _getIconColor()),
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Icon(icon, size: 24, color: _getIconColor()),
                 ),
                 AppSpacing.horizontalSpaceLarge,
                 Expanded(
@@ -154,7 +167,7 @@ class AccountMenuItem extends StatelessWidget {
                 ),
                 Icon(
                   Icons.chevron_right,
-                  color: AppColors.treeBrown.withOpacity(0.5),
+                  color: AppColors.treeBrown.withValues(alpha: 0.5),
                   size: 20,
                 ),
               ],

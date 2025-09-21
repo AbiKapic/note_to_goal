@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../features/account/presentation/screens/account_screen.dart';
+import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/create/presentation/screens/create_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/home/presentation/screens/search_screen.dart';
@@ -14,6 +15,7 @@ abstract class AppPages {
     AppRoutes.create: (_) => const CreateScreen(),
     AppRoutes.library: (_) => const LibraryScreen(),
     AppRoutes.account: (_) => const AccountScreen(),
+    AppRoutes.login: (_) => const LoginScreen(),
   };
 
   static Route<dynamic> createRoute(RouteSettings settings) {

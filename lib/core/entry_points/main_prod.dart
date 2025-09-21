@@ -43,7 +43,7 @@ void main() async {
         return false;
       };
 
-      runApp(const App());
+      runApp(App(apiBaseUrl: apiBaseUrl));
     },
     (error, stackTrace) {
       if (enableCrashReporting) {

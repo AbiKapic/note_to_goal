@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-import '../../core/theme/app_spacing.dart';
 import '../../features/create/presentation/screens/create_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/home/presentation/screens/search_screen.dart';
@@ -43,11 +42,11 @@ class MainShell extends HookWidget {
       ),
     ];
 
-    final screens = const [
-      HomeScreen(key: PageStorageKey<String>(AppRoutes.home)),
-      SearchScreen(key: PageStorageKey<String>(AppRoutes.search)),
-      CreateScreen(key: PageStorageKey<String>(AppRoutes.create)),
-      LibraryScreen(key: PageStorageKey<String>(AppRoutes.library)),
+    final screens = [
+      const HomeScreen(key: PageStorageKey<String>(AppRoutes.home)),
+      const SearchScreen(key: PageStorageKey<String>(AppRoutes.search)),
+      const CreateScreen(key: PageStorageKey<String>(AppRoutes.create)),
+      const LibraryScreen(key: PageStorageKey<String>(AppRoutes.library)),
     ];
 
     void onTabTap(int index) {
@@ -55,15 +54,13 @@ class MainShell extends HookWidget {
     }
 
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(index: currentIndex.value, children: screens),
-      bottomNavigationBar: Container(
-        padding: AppSpacing.bottomNavigationPadding,
-        child: AppBottomNavigation(
-          items: navigationItems,
-          currentIndex: currentIndex.value,
-          onTap: onTabTap,
-          semanticLabel: 'Main navigation',
-        ),
+      bottomNavigationBar: AppBottomNavigation(
+        items: navigationItems,
+        currentIndex: currentIndex.value,
+        onTap: onTabTap,
+        semanticLabel: 'Main navigation',
       ),
     );
   }
