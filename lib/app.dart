@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:note_to_goal/core/theme/app_theme.dart';
-import 'package:note_to_goal/features/auth/presentation/widgets/auth_wrapper.dart';
+import 'package:note_to_goal/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:note_to_goal/navigations/app_pages.dart';
 import 'package:note_to_goal/services/hive_service.dart';
 import 'package:note_to_goal/shared/widgets/handled_exception_snackbar_overlay.dart';
@@ -39,7 +39,7 @@ class App extends StatelessWidget {
             builder: (context, child) => HandledExceptionSnackbarOverlay(
               child: child ?? const SizedBox.shrink(),
             ),
-            home: const AuthWrapper(),
+            home: const OnboardingScreen(),
             routes: AppPages.routes,
             onGenerateRoute: AppPages.createRoute,
             theme: AppTheme.lightTheme,

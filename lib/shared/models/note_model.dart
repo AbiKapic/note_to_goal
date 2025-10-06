@@ -36,6 +36,12 @@ class Note {
   @HiveField(8)
   final String? progressUnit;
 
+  @HiveField(9)
+  final bool isFavorite;
+
+  @HiveField(10)
+  final bool isDisliked;
+
   const Note({
     required this.id,
     required this.title,
@@ -46,6 +52,8 @@ class Note {
     this.updatedAt,
     this.progressPercent,
     this.progressUnit,
+    this.isFavorite = false,
+    this.isDisliked = false,
   });
 
   factory Note.create({
@@ -55,6 +63,8 @@ class Note {
     required PriorityLevel priority,
     int? progressPercent,
     String? progressUnit,
+    bool isFavorite = false,
+    bool isDisliked = false,
   }) {
     if (title.trim().isEmpty) {
       throw ArgumentError('Title cannot be empty');
@@ -76,6 +86,8 @@ class Note {
       createdAt: DateTime.now(),
       progressPercent: progressPercent,
       progressUnit: progressUnit,
+      isFavorite: isFavorite,
+      isDisliked: isDisliked,
     );
   }
 
@@ -89,6 +101,8 @@ class Note {
     DateTime? updatedAt,
     int? progressPercent,
     String? progressUnit,
+    bool? isFavorite,
+    bool? isDisliked,
   }) {
     return Note(
       id: id ?? this.id,
@@ -100,6 +114,8 @@ class Note {
       updatedAt: updatedAt ?? this.updatedAt,
       progressPercent: progressPercent ?? this.progressPercent,
       progressUnit: progressUnit ?? this.progressUnit,
+      isFavorite: isFavorite ?? this.isFavorite,
+      isDisliked: isDisliked ?? this.isDisliked,
     );
   }
 
@@ -114,6 +130,8 @@ class Note {
       'updatedAt': updatedAt?.toIso8601String(),
       'progressPercent': progressPercent,
       'progressUnit': progressUnit,
+      'isFavorite': isFavorite,
+      'isDisliked': isDisliked,
     };
   }
 
@@ -136,6 +154,8 @@ class Note {
           : null,
       progressPercent: map['progressPercent'],
       progressUnit: map['progressUnit'],
+      isFavorite: (map['isFavorite'] as bool?) ?? false,
+      isDisliked: (map['isDisliked'] as bool?) ?? false,
     );
   }
 

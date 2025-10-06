@@ -34,8 +34,8 @@ class AppBottomNavigation extends HookWidget {
     this.unselectedItemColor,
     this.showLabels = true,
     this.showUnselectedLabels = true,
-    this.elevation = 0, // Remove elevation to prevent layout issues
-    this.height = 80.0, // Increased height for better touch targets
+    this.elevation = 0,
+    this.height = 80.0,
     this.borderRadius = 0.0,
     this.semanticLabel,
   }) : assert(
@@ -129,7 +129,7 @@ class AppBottomNavigation extends HookWidget {
           : item.icon;
 
       final double iconSize = 24;
-      final double itemHeight = height - 16; // Account for top/bottom padding
+      final double itemHeight = height - 16;
 
       Widget iconWidget = AnimatedContainer(
         duration: AppConstants.animationDurationNormal,
@@ -232,7 +232,6 @@ class AppBottomNavigation extends HookWidget {
                       child: Icon(displayIcon, size: 24, color: iconColor),
                     ),
                     const SizedBox(height: 4),
-                    // Label with better typography
                     Text(
                       item.label,
                       style: AppTypography.bodySmall.copyWith(

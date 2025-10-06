@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../navigations/app_routes.dart';
 import '../../../shared/models/note_model.dart';
 import '../app_card.dart';
 
@@ -93,12 +94,56 @@ class GoalsCard extends HookWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            'Set and track your life goals',
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.neutralDarkGray,
+          if (recentNotes.isEmpty)
+            Text(
+              'Set and track your life goals',
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.neutralDarkGray,
+              ),
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: recentNotes.take(2).map((note) {
+                final index = recentNotes.indexOf(note);
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: index < recentNotes.take(2).length - 1 ? 8 : 0,
+                  ),
+                  child: InkWell(
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.noteDetail,
+                      arguments: {'noteId': note.id},
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 4,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: AppColors.accentWarning,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            note.title,
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.neutralDarkGray,
+                              fontWeight: AppTypography.medium,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
-          ),
         ],
       ),
     );

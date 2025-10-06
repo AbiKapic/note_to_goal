@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../shared/models/note_model.dart';
 
@@ -39,16 +38,26 @@ class HiveService {
 
   static Future<void> init() async {
     try {
-      final appDocumentDir = await getApplicationDocumentsDirectory();
-      Hive.init(appDocumentDir.path);
+      // Initialize Hive with Flutter
+      await Hive.initFlutter();
+      
+      // Register adapters only if not already registered
+      if (!Hive.isAdapterRegistered(1)) {
+        Hive.registerAdapter(NoteTypeAdapter());
+      }
+      if (!Hive.isAdapterRegistered(2)) {
+        Hive.registerAdapter(PriorityLevelAdapter());
+      }
+      if (!Hive.isAdapterRegistered(0)) {
+        Hive.registerAdapter(NoteAdapter());
+      }
 
-      Hive.registerAdapter(NoteTypeAdapter());
-      Hive.registerAdapter(PriorityLevelAdapter());
-
-      Hive.registerAdapter(NoteAdapter());
-
-      await Hive.openBox<Note>(_notesBoxName);
+      // Open the box if not already open
+      if (!Hive.isBoxOpen(_notesBoxName)) {
+        await Hive.openBox<Note>(_notesBoxName);
+      }
     } catch (e) {
+      print('Hive initialization error: $e');
       rethrow;
     }
   }
@@ -56,8 +65,6 @@ class HiveService {
   static Future<void> close() async {
     await Hive.close();
   }
-
-  // Notes operations
   static Box<Note> get notesBox => Hive.box<Note>(_notesBoxName);
 
   static ValueListenable<Box<Note>> notesListenable() {
@@ -66,8 +73,18 @@ class HiveService {
 
   static Future<void> addNote(Note note) async {
     try {
-      await notesBox.put(note.id, note);
+      // Ensure the box is open
+      if (!Hive.isBoxOpen(_notesBoxName)) {
+        await Hive.openBox<Note>(_notesBoxName);
+      }
+      
+      final box = notesBox;
+      await box.put(note.id, note);
+      await box.flush(); // Force write to disk
+      
+      print('Note saved successfully: ${note.id} - ${note.title}');
     } catch (e) {
+      print('Failed to save note to Hive: $e');
       throw Exception('Failed to save note to Hive: ${e.toString()}');
     }
   }
@@ -89,7 +106,8 @@ class HiveService {
   }
 
   static List<Note> getAllNotes() {
-    return notesBox.values.toList();
+    return notesBox.values.toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   static List<Note> getNotesByType(NoteType type) {
@@ -111,5 +129,34 @@ class HiveService {
       counts[type] = getNotesCountByType(type);
     }
     return counts;
+  }
+
+  static Future<void> toggleNoteFavorite(String noteId) async {
+    final note = getNoteById(noteId);
+    if (note == null) return;
+    await updateNote(note.copyWith(isFavorite: !note.isFavorite));
+  }
+
+  static Future<void> toggleNoteDisliked(String noteId) async {
+    final note = getNoteById(noteId);
+    if (note == null) return;
+    await updateNote(note.copyWith(isDisliked: !note.isDisliked));
+  }
+
+  static List<Note> getFavoriteNotes() {
+    return notesBox.values.where((n) => n.isFavorite).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  }
+
+  static List<Note> getDislikedNotes() {
+    return notesBox.values.where((n) => n.isDisliked).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  }
+
+  static List<Note> getCompletedNotes() {
+    return notesBox.values
+        .where((n) => (n.progressPercent ?? 0) >= 100)
+        .toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 }

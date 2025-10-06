@@ -4,8 +4,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../navigations/app_routes.dart';
 import '../../../../services/hive_service.dart';
 import '../../../../shared/models/note_model.dart';
+import '../../../../shared/widgets/note_card.dart';
 
 enum ItemType { goal, success, note }
 
@@ -82,33 +84,7 @@ class SearchScreen extends HookWidget {
       }).toList();
     }
 
-    Color typeColor(NoteType type) {
-      switch (type) {
-        case NoteType.goals:
-          return AppColors.accentInfo;
-        case NoteType.successes:
-          return AppColors.accentWarning;
-        case NoteType.quickNotes:
-        case NoteType.journal:
-        case NoteType.habits:
-        case NoteType.inspiration:
-          return AppColors.primaryBrown;
-      }
-    }
-
-    IconData typeIcon(NoteType type) {
-      switch (type) {
-        case NoteType.goals:
-          return Icons.my_location;
-        case NoteType.successes:
-          return Icons.emoji_events;
-        case NoteType.quickNotes:
-        case NoteType.journal:
-        case NoteType.habits:
-        case NoteType.inspiration:
-          return Icons.edit;
-      }
-    }
+    // typeColor and typeIcon are now handled inside the NoteCard
 
     Color priorityDot(ItemPriority p) {
       switch (p) {
@@ -769,174 +745,13 @@ class SearchScreen extends HookWidget {
     }
 
     Widget buildItemCard(Note note) {
-      final itemStatus = noteStatusToItemStatus(note);
-
-      return Container(
-        margin: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.sm,
-        ),
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: AppColors.neutralWhite,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.secondaryBeigeVariant),
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.shadow,
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: typeColor(note.type).withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(typeIcon(note.type), color: typeColor(note.type)),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          note.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTypography.titleMedium.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: AppTypography.semiBold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Row(
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: priorityDot(
-                                notePriorityToItemPriority(note.priority),
-                              ),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.xs),
-                          Text(
-                            priorityLabel(
-                              notePriorityToItemPriority(note.priority),
-                            ),
-                            style: AppTypography.labelSmall.copyWith(
-                              color: priorityDot(
-                                notePriorityToItemPriority(note.priority),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    note.description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        note.type == NoteType.goals
-                            ? 'Goal'
-                            : note.type == NoteType.successes
-                            ? 'Success'
-                            : 'Note',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.textTertiary,
-                        ),
-                      ),
-                      if (note.type == NoteType.goals &&
-                          note.progressPercent != null)
-                        Row(
-                          children: [
-                            Container(
-                              width: 64,
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: AppColors.neutralLightGray,
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  width:
-                                      64 *
-                                      (note.progressPercent!.clamp(0, 100) /
-                                          100),
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.accentSuccess,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.sm),
-                            Text(
-                              '${note.progressPercent}%',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: AppColors.accentSuccess,
-                              ),
-                            ),
-                          ],
-                        )
-                      else
-                        Row(
-                          children: [
-                            Icon(
-                              itemStatus == ItemStatus.completed
-                                  ? Icons.check_circle
-                                  : Icons.bookmark,
-                              size: 14,
-                              color: itemStatus == ItemStatus.completed
-                                  ? AppColors.accentSuccess
-                                  : AppColors.primaryBrown,
-                            ),
-                            const SizedBox(width: AppSpacing.xs),
-                            Text(
-                              itemStatus == ItemStatus.completed
-                                  ? 'Completed'
-                                  : 'Saved',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: itemStatus == ItemStatus.completed
-                                    ? AppColors.accentSuccess
-                                    : AppColors.primaryBrown,
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+      return NoteCard(
+        note: note,
+        showCategoryIcon: true,
+        onTap: () => Navigator.pushNamed(
+          context,
+          AppRoutes.noteDetail,
+          arguments: {'noteId': note.id},
         ),
       );
     }

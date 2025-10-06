@@ -98,29 +98,19 @@ class _LoginScaffold extends HookWidget {
     }
 
     Widget buildHeader() {
-      final screenWidth = MediaQuery.of(context).size.width;
-      final screenHeight = MediaQuery.of(context).size.height;
-      final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-      
-      // Responsive sizing
-      final logoSize = keyboardVisible ? 60.0 : (screenHeight < 600 ? 72.0 : 96.0);
-      final titleFontSize = screenWidth < 400 ? 28.0 : (keyboardVisible ? 24.0 : 36.0);
-      final subtitleFontSize = screenWidth < 400 ? 14.0 : 16.0;
-      final topPadding = keyboardVisible ? 16.0 : (32.0 + MediaQuery.of(context).padding.top);
-      
       return Padding(
         padding: EdgeInsets.only(
-          top: topPadding,
+          top: 32 + MediaQuery.of(context).padding.top,
           left: 16,
           right: 16,
-          bottom: keyboardVisible ? 4 : 8,
+          bottom: 8,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: logoSize,
-              height: logoSize,
+              width: 96,
+              height: 96,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 boxShadow: [
@@ -136,54 +126,41 @@ class _LoginScaffold extends HookWidget {
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: Center(
-                child: Icon(
-                  Icons.eco, 
-                  color: AppColors.textOnBrown, 
-                  size: logoSize * 0.42,
-                ),
+              child: const Center(
+                child: Icon(Icons.eco, color: AppColors.textOnBrown, size: 40),
               ),
             ),
-            SizedBox(height: keyboardVisible ? 8 : 16),
+            const SizedBox(height: 16),
             Text(
               'NoteToGoal',
               textAlign: TextAlign.center,
               style: AppTypography.headlineSmall.copyWith(
                 color: AppColors.treeBrown,
                 fontWeight: AppTypography.bold,
-                fontSize: titleFontSize,
+                fontSize: 36,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
-            if (!keyboardVisible) ...[
-              const SizedBox(height: 6),
-              Text(
-                'Transform your notes into achievements',
-                textAlign: TextAlign.center,
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.treeBrown.withValues(alpha: 0.6),
-                  fontSize: subtitleFontSize,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+            const SizedBox(height: 6),
+            Text(
+              'Transform your notes into achievements',
+              textAlign: TextAlign.center,
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.treeBrown.withValues(alpha: 0.6),
+                fontSize: 16,
               ),
-            ],
+            ),
           ],
         ),
       );
     }
 
     Widget buildFormCard() {
-      final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-      final formPadding = keyboardVisible ? 16.0 : 20.0;
-      
       return Padding(
-        padding: EdgeInsets.symmetric(horizontal: formPadding),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: keyboardVisible ? 8 : 12),
+            const SizedBox(height: 12),
             AppTextField(
               hint: 'Username',
               controller: usernameController,
@@ -242,43 +219,44 @@ class _LoginScaffold extends HookWidget {
               ],
               semanticLabel: 'Password input field',
             ),
-            SizedBox(height: keyboardVisible ? 16 : 24),
-            if (!keyboardVisible) ...[
-              Align(
-                alignment: Alignment.center,
-                child: TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Forgot Password?',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.leafGreen,
-                      fontWeight: AppTypography.semiBold,
-                    ),
+            const SizedBox(height: 24),
+            Align(
+              alignment: Alignment.center,
+              child: TextButton(
+                onPressed: () {},
+                child: Text(
+                  'Forgot Password?',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.leafGreen,
+                    fontWeight: AppTypography.semiBold,
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-            ],
-            SizedBox(
-              width: double.infinity,
-              child: AppButton(
-                leadingIcon: Icons.login,
-                text: 'Log In',
-                onPressed: (isValid.value && !isSubmitting.value)
-                    ? handleLogin
-                    : null,
-                isLoading: isSubmitting.value,
-                semanticLabel: 'Log in button',
-                elevation: 8,
-                borderRadius: 28,
-                foregroundColor: AppColors.textOnBrown,
-                backgroundGradient: const LinearGradient(
-                  colors: [AppColors.leafGreen, AppColors.primaryBrown],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: AppButton(
+                    leadingIcon: Icons.login,
+                    text: 'Log In',
+                    onPressed: (isValid.value && !isSubmitting.value)
+                        ? handleLogin
+                        : null,
+                    isLoading: isSubmitting.value,
+                    semanticLabel: 'Log in button',
+                    elevation: 8,
+                    borderRadius: 28,
+                    foregroundColor: AppColors.textOnBrown,
+                    backgroundGradient: const LinearGradient(
+                      colors: [AppColors.leafGreen, AppColors.primaryBrown],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    size: AppButtonSize.large,
+                  ),
                 ),
-                size: AppButtonSize.large,
-              ),
+              ],
             ),
           ],
         ),
@@ -286,8 +264,7 @@ class _LoginScaffold extends HookWidget {
     }
 
     final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final availableHeight = screenHeight - keyboardInset;
+    final dynamicBottomPadding = keyboardInset > 0 ? 16.0 : 120.0;
 
     return BlocListener<AuthBloc, BaseState<AuthUser>>(
       listener: (context, state) {
@@ -297,7 +274,6 @@ class _LoginScaffold extends HookWidget {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        resizeToAvoidBottomInset: true,
         body: AnnotatedRegion<SystemUiOverlayStyle>(
           value: const SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
@@ -309,7 +285,9 @@ class _LoginScaffold extends HookWidget {
           ),
           child: Container(
             width: double.infinity,
-            height: double.infinity,
+            height:
+                MediaQuery.of(context).size.height +
+                MediaQuery.of(context).padding.bottom,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -322,31 +300,28 @@ class _LoginScaffold extends HookWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: SafeArea(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: availableHeight - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
-                  ),
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height,
+                ),
+                child: AnimatedPadding(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOut,
+                  padding: EdgeInsets.only(bottom: dynamicBottomPadding),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       buildHeader(),
-                      const SizedBox(height: 20),
                       Center(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 480),
-                          child: buildFormCard(),
+                          child: Stack(children: [buildFormCard()]),
                         ),
                       ),
-                      if (keyboardInset == 0) ...[
-                        const SizedBox(height: 40),
-                        buildTreeDecoration(),
-                        const SizedBox(height: 20),
-                      ] else
-                        const SizedBox(height: 20),
+                      const SizedBox(height: 56),
+                      const SizedBox(height: 40),
+                      buildTreeDecoration(),
                     ],
                   ),
                 ),
@@ -360,12 +335,12 @@ class _LoginScaffold extends HookWidget {
 
   Widget buildTreeDecoration() {
     return Container(
-      margin: const EdgeInsets.only(top: 20),
+      margin: const EdgeInsets.only(top: 40),
       child: Opacity(
         opacity: 0.4,
         child: Container(
-          width: 60,
-          height: 60,
+          width: 80,
+          height: 80,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
             image: DecorationImage(

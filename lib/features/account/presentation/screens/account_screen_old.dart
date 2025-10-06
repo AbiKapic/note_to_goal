@@ -7,26 +7,16 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../features/auth/bloc/auth_bloc.dart';
 import '../../../../features/auth/bloc/auth_event.dart';
 import '../../../../features/auth/bloc/auth_state.dart';
-import '../../../../services/hive_service.dart';
-import '../../../../shared/models/note_model.dart';
 import '../widgets/account_header.dart';
 import '../widgets/account_menu_item.dart';
 import '../widgets/account_profile_section.dart';
-import 'notifications_screen.dart';
-import 'personal_info_screen.dart';
-import 'success_overview_screen.dart';
 
 class AccountScreen extends HookWidget {
   const AccountScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    useListenable(HiveService.notesListenable());
-    
     final isSigningOut = useState(false);
-    final allNotes = HiveService.getAllNotes();
-    final goalNotes = HiveService.getNotesByType(NoteType.goals);
-    final completedGoals = goalNotes.where((note) => (note.progressPercent ?? 0) >= 100).length;
 
     void handleSignOut() {
       if (isSigningOut.value) return;
@@ -83,9 +73,9 @@ class AccountScreen extends HookWidget {
                             AccountProfileSection(
                               name: 'Sarah Johnson',
                               subtitle: 'Goal achiever since 2024',
-                              goalsCount: goalNotes.length,
-                              successCount: completedGoals,
-                              notesCount: allNotes.length,
+                              goalsCount: 24,
+                              successCount: 18,
+                              notesCount: 156,
                               avatarUrl:
                                   'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg',
                               onAvatarTap: () {},
@@ -98,53 +88,28 @@ class AccountScreen extends HookWidget {
                                   title: 'Personal Information',
                                   subtitle: 'Edit your profile details',
                                   icon: Icons.person,
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => const PersonalInfoScreen(),
-                                      ),
-                                    );
-                                  },
+                                  onTap: () {},
                                 ),
                                 AccountMenuItem(
                                   type: AccountMenuItemType.successOverview,
                                   title: 'Success Overview',
                                   subtitle: 'Track your achievements',
                                   icon: Icons.show_chart,
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => const SuccessOverviewScreen(),
-                                      ),
-                                    );
-                                  },
+                                  onTap: () {},
                                 ),
                                 AccountMenuItem(
                                   type: AccountMenuItemType.noteForYourself,
                                   title: 'Note for Yourself',
                                   subtitle: 'Personal reminders & thoughts',
                                   icon: Icons.sticky_note_2,
-                                  onTap: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Personal notes feature coming soon!'),
-                                        backgroundColor: AppColors.leafGreen,
-                                      ),
-                                    );
-                                  },
+                                  onTap: () {},
                                 ),
                                 AccountMenuItem(
                                   type: AccountMenuItemType.notifications,
                                   title: 'Notifications',
                                   subtitle: 'Manage alerts & reminders',
                                   icon: Icons.notifications,
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => const NotificationsScreen(),
-                                      ),
-                                    );
-                                  },
+                                  onTap: () {},
                                 ),
                                 AccountMenuItem(
                                   type: AccountMenuItemType.signOut,
@@ -159,33 +124,7 @@ class AccountScreen extends HookWidget {
                                   title: 'Delete Account',
                                   subtitle: 'Permanently remove account',
                                   icon: Icons.delete_forever,
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: Text('Delete Account'),
-                                        content: Text('Are you sure you want to permanently delete your account? This action cannot be undone.'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(),
-                                            child: Text('Cancel'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Account deletion feature coming soon'),
-                                                  backgroundColor: AppColors.accentError,
-                                                ),
-                                              );
-                                            },
-                                            child: Text('Delete', style: TextStyle(color: Colors.red)),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
+                                  onTap: () {},
                                 ),
                               ],
                             ),
