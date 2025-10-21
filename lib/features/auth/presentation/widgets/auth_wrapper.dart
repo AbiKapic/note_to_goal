@@ -15,12 +15,7 @@ class AuthWrapper extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HandledExceptionSnackbarOverlay(
-      child: BlocProvider<AuthBloc>(
-        create: (_) => AuthBloc(),
-        child: const _AuthGate(),
-      ),
-    );
+    return HandledExceptionSnackbarOverlay(child: const _AuthGate());
   }
 }
 

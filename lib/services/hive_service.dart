@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../shared/models/note_model.dart';
+import 'profile_service.dart';
 
 class NoteTypeAdapter extends TypeAdapter<NoteType> {
   @override
@@ -20,7 +21,7 @@ class NoteTypeAdapter extends TypeAdapter<NoteType> {
 
 class PriorityLevelAdapter extends TypeAdapter<PriorityLevel> {
   @override
-  final int typeId = 2;
+  final int typeId = 3;
 
   @override
   PriorityLevel read(BinaryReader reader) {
@@ -40,12 +41,12 @@ class HiveService {
     try {
       // Initialize Hive with Flutter
       await Hive.initFlutter();
-      
+
       // Register adapters only if not already registered
       if (!Hive.isAdapterRegistered(1)) {
         Hive.registerAdapter(NoteTypeAdapter());
       }
-      if (!Hive.isAdapterRegistered(2)) {
+      if (!Hive.isAdapterRegistered(3)) {
         Hive.registerAdapter(PriorityLevelAdapter());
       }
       if (!Hive.isAdapterRegistered(0)) {
@@ -56,6 +57,9 @@ class HiveService {
       if (!Hive.isBoxOpen(_notesBoxName)) {
         await Hive.openBox<Note>(_notesBoxName);
       }
+
+      // Initialize ProfileService
+      await ProfileService.instance.init();
     } catch (e) {
       print('Hive initialization error: $e');
       rethrow;
@@ -65,6 +69,7 @@ class HiveService {
   static Future<void> close() async {
     await Hive.close();
   }
+
   static Box<Note> get notesBox => Hive.box<Note>(_notesBoxName);
 
   static ValueListenable<Box<Note>> notesListenable() {
@@ -77,11 +82,11 @@ class HiveService {
       if (!Hive.isBoxOpen(_notesBoxName)) {
         await Hive.openBox<Note>(_notesBoxName);
       }
-      
+
       final box = notesBox;
       await box.put(note.id, note);
       await box.flush(); // Force write to disk
-      
+
       print('Note saved successfully: ${note.id} - ${note.title}');
     } catch (e) {
       print('Failed to save note to Hive: $e');

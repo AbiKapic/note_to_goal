@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'note_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class NoteAdapter extends TypeAdapter<Note> {
   @override
@@ -20,8 +26,8 @@ class NoteAdapter extends TypeAdapter<Note> {
       updatedAt: fields[6] as DateTime?,
       progressPercent: fields[7] as int?,
       progressUnit: fields[8] as String?,
-      isFavorite: (fields[9] as bool?) ?? false,
-      isDisliked: (fields[10] as bool?) ?? false,
+      isFavorite: fields[9] as bool,
+      isDisliked: fields[10] as bool,
     );
   }
 

@@ -1,10 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../navigations/app_routes.dart';
+import '../../../../features/auth/presentation/widgets/auth_wrapper.dart';
 import '../../../../shared/widgets/app_button.dart';
 
 class OnboardingScreen extends HookWidget {
@@ -14,24 +15,44 @@ class OnboardingScreen extends HookWidget {
   Widget build(BuildContext context) {
     final pageController = usePageController();
     final currentPage = useState(0);
+    final skipButtonAnimation = useAnimationController(
+      duration: const Duration(milliseconds: 300),
+    );
+    final actionButtonAnimation = useAnimationController(
+      duration: const Duration(milliseconds: 300),
+    );
+    final skipButtonScale = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(skipButtonAnimation);
+    final actionButtonScale = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(actionButtonAnimation);
 
     final onboardingPages = [
       _OnboardingPage(
         title: 'Welcome to NoteToGoal',
-        description: 'Transform your everyday notes into achievable goals and track your progress towards success.',
-        imagePath: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/7f92239b55-3f9634816c4e2de38030.png',
+        description:
+            'Transform your everyday notes into achievable goals and track your progress towards success.',
+        imagePath:
+            'https://storage.googleapis.com/uxpilot-auth.appspot.com/7f92239b55-3f9634816c4e2de38030.png',
         backgroundColor: AppColors.warmYellow,
       ),
       _OnboardingPage(
         title: 'Organize Your Thoughts',
-        description: 'Create different types of notes - quick notes, journal entries, goals, successes, habits, and inspiration.',
-        imagePath: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/4ce53463e4-99ae16824d989071b24d.png',
+        description:
+            'Create different types of notes - quick notes, journal entries, goals, successes, habits, and inspiration.',
+        imagePath:
+            'https://storage.googleapis.com/uxpilot-auth.appspot.com/4ce53463e4-99ae16824d989071b24d.png',
         backgroundColor: AppColors.softCream,
       ),
       _OnboardingPage(
         title: 'Track Your Progress',
-        description: 'Monitor your journey with progress tracking, priority levels, and achievement milestones.',
-        imagePath: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg',
+        description:
+            'Monitor your journey with progress tracking, priority levels, and achievement milestones.',
+        imagePath:
+            'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=400&fit=crop&crop=center',
         backgroundColor: AppColors.leafGreen,
       ),
     ];
@@ -48,6 +69,7 @@ class OnboardingScreen extends HookWidget {
           systemNavigationBarDividerColor: Colors.transparent,
         ),
       );
+
       return null;
     }, const []);
 
@@ -58,12 +80,34 @@ class OnboardingScreen extends HookWidget {
           curve: Curves.easeInOut,
         );
       } else {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const AuthWrapper()),
+        );
       }
     }
 
-    void skipToLogin() {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+    void skipToLogin() async {
+      await skipButtonAnimation.forward();
+      await skipButtonAnimation.reverse();
+      if (context.mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const AuthWrapper()),
+        );
+      }
+    }
+
+    void handleActionButton() async {
+      await actionButtonAnimation.forward();
+      await actionButtonAnimation.reverse();
+      if (currentPage.value == onboardingPages.length - 1) {
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const AuthWrapper()),
+          );
+        }
+      } else {
+        nextPage();
+      }
     }
 
     return Scaffold(
@@ -74,7 +118,9 @@ class OnboardingScreen extends HookWidget {
           gradient: LinearGradient(
             colors: [
               onboardingPages[currentPage.value].backgroundColor,
-              onboardingPages[currentPage.value].backgroundColor.withValues(alpha: 0.8),
+              onboardingPages[currentPage.value].backgroundColor.withValues(
+                alpha: 0.8,
+              ),
               AppColors.neutralWhite,
             ],
             stops: const [0.0, 0.7, 1.0],
@@ -87,25 +133,36 @@ class OnboardingScreen extends HookWidget {
             children: [
               // Skip button
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const SizedBox(width: 60),
-                    TextButton(
-                      onPressed: skipToLogin,
-                      child: Text(
-                        'Skip',
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: AppColors.treeBrown,
-                          fontWeight: AppTypography.semiBold,
-                        ),
-                      ),
+                    AnimatedBuilder(
+                      animation: skipButtonScale,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: skipButtonScale.value,
+                          child: TextButton(
+                            onPressed: skipToLogin,
+                            child: Text(
+                              'Skip',
+                              style: AppTypography.bodyMedium.copyWith(
+                                color: AppColors.treeBrown,
+                                fontWeight: AppTypography.semiBold,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
-              
+
               // Page view
               Expanded(
                 child: PageView.builder(
@@ -115,7 +172,7 @@ class OnboardingScreen extends HookWidget {
                   itemBuilder: (context, index) => onboardingPages[index],
                 ),
               ),
-              
+
               // Bottom section with indicators and button
               Padding(
                 padding: const EdgeInsets.all(20),
@@ -140,30 +197,47 @@ class OnboardingScreen extends HookWidget {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     // Action button
                     SizedBox(
                       width: double.infinity,
-                      child: AppButton(
-                        text: currentPage.value == onboardingPages.length - 1
-                            ? 'Get Started'
-                            : 'Next',
-                        onPressed: nextPage,
-                        leadingIcon: currentPage.value == onboardingPages.length - 1
-                            ? Icons.login
-                            : Icons.arrow_forward,
-                        size: AppButtonSize.large,
-                        borderRadius: 28,
-                        elevation: 8,
-                        foregroundColor: AppColors.textOnBrown,
-                        backgroundGradient: const LinearGradient(
-                          colors: [AppColors.leafGreen, AppColors.primaryBrown],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        semanticLabel: currentPage.value == onboardingPages.length - 1
-                            ? 'Get started button'
-                            : 'Next page button',
+                      child: AnimatedBuilder(
+                        animation: actionButtonScale,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: actionButtonScale.value,
+                            child: AppButton(
+                              text:
+                                  currentPage.value ==
+                                      onboardingPages.length - 1
+                                  ? 'Get Started'
+                                  : 'Next',
+                              onPressed: handleActionButton,
+                              leadingIcon:
+                                  currentPage.value ==
+                                      onboardingPages.length - 1
+                                  ? Icons.login
+                                  : Icons.arrow_forward,
+                              size: AppButtonSize.large,
+                              borderRadius: 28,
+                              elevation: 8,
+                              foregroundColor: AppColors.textOnBrown,
+                              backgroundGradient: const LinearGradient(
+                                colors: [
+                                  AppColors.leafGreen,
+                                  AppColors.primaryBrown,
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              semanticLabel:
+                                  currentPage.value ==
+                                      onboardingPages.length - 1
+                                  ? 'Get started button'
+                                  : 'Next page button',
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -194,18 +268,21 @@ class _OnboardingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     // Responsive sizing
-    final imageSize = screenHeight < 600 ? 150.0 : (screenWidth < 400 ? 160.0 : 200.0);
+    final imageSize = screenHeight < 600
+        ? 150.0
+        : (screenWidth < 400 ? 160.0 : 200.0);
     final titleFontSize = screenWidth < 400 ? 24.0 : 28.0;
     final descriptionFontSize = screenWidth < 400 ? 14.0 : 16.0;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SingleChildScrollView(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            minHeight: screenHeight * 0.6, // Ensure minimum height but allow scroll
+            minHeight:
+                screenHeight * 0.6, // Ensure minimum height but allow scroll
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -226,48 +303,47 @@ class _OnboardingPage extends StatelessWidget {
                   ],
                 ),
                 child: ClipOval(
-                  child: Image.network(
-                    imagePath,
+                  child: CachedNetworkImage(
+                    imageUrl: imagePath,
                     fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.neutralLightGray,
+                    cacheKey: 'onboarding_${imagePath.hashCode}',
+                    memCacheWidth: imageSize.round(),
+                    memCacheHeight: imageSize.round(),
+                    maxWidthDiskCache: imageSize.round(),
+                    maxHeightDiskCache: imageSize.round(),
+                    placeholder: (context, url) => Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: backgroundColor.withValues(alpha: 0.3),
+                      ),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: backgroundColor,
+                          strokeWidth: 2,
                         ),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.leafGreen,
-                            strokeWidth: 2,
-                          ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: backgroundColor.withValues(alpha: 0.8),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.eco,
+                          color: backgroundColor,
+                          size: imageSize * 0.4,
                         ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [AppColors.leafGreen, AppColors.treeBrown],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.eco,
-                            color: AppColors.textOnBrown,
-                            size: imageSize * 0.4,
-                          ),
-                        ),
-                      );
-                    },
+                      ),
+                    ),
+                    fadeInDuration: const Duration(milliseconds: 150),
+                    fadeOutDuration: const Duration(milliseconds: 50),
+                    useOldImageOnUrlChange: false,
                   ),
                 ),
               ),
               SizedBox(height: screenHeight < 600 ? 32 : 48),
-              
+
               // Title
               Text(
                 title,
@@ -281,7 +357,7 @@ class _OnboardingPage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 16),
-              
+
               // Description (avoid Flexible inside scroll views to prevent unbounded height errors)
               Text(
                 description,

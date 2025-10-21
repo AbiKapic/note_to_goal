@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -101,13 +102,19 @@ class _LoginScaffold extends HookWidget {
       final screenWidth = MediaQuery.of(context).size.width;
       final screenHeight = MediaQuery.of(context).size.height;
       final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-      
+
       // Responsive sizing
-      final logoSize = keyboardVisible ? 60.0 : (screenHeight < 600 ? 72.0 : 96.0);
-      final titleFontSize = screenWidth < 400 ? 28.0 : (keyboardVisible ? 24.0 : 36.0);
+      final logoSize = keyboardVisible
+          ? 60.0
+          : (screenHeight < 600 ? 72.0 : 96.0);
+      final titleFontSize = screenWidth < 400
+          ? 28.0
+          : (keyboardVisible ? 24.0 : 36.0);
       final subtitleFontSize = screenWidth < 400 ? 14.0 : 16.0;
-      final topPadding = keyboardVisible ? 16.0 : (32.0 + MediaQuery.of(context).padding.top);
-      
+      final topPadding = keyboardVisible
+          ? 16.0
+          : (32.0 + MediaQuery.of(context).padding.top);
+
       return Padding(
         padding: EdgeInsets.only(
           top: topPadding,
@@ -138,8 +145,8 @@ class _LoginScaffold extends HookWidget {
               ),
               child: Center(
                 child: Icon(
-                  Icons.eco, 
-                  color: AppColors.textOnBrown, 
+                  Icons.eco,
+                  color: AppColors.textOnBrown,
                   size: logoSize * 0.42,
                 ),
               ),
@@ -177,7 +184,7 @@ class _LoginScaffold extends HookWidget {
     Widget buildFormCard() {
       final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
       final formPadding = keyboardVisible ? 16.0 : 20.0;
-      
+
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: formPadding),
         child: Column(
@@ -327,7 +334,10 @@ class _LoginScaffold extends HookWidget {
                 physics: const ClampingScrollPhysics(),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    minHeight: availableHeight - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+                    minHeight:
+                        availableHeight -
+                        MediaQuery.of(context).padding.top -
+                        MediaQuery.of(context).padding.bottom,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -366,13 +376,29 @@ class _LoginScaffold extends HookWidget {
         child: Container(
           width: 60,
           height: 60,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              image: NetworkImage(
-                'https://storage.googleapis.com/uxpilot-auth.appspot.com/7f92239b55-3f9634816c4e2de38030.png',
-              ),
+          decoration: const BoxDecoration(shape: BoxShape.circle),
+          child: ClipOval(
+            child: CachedNetworkImage(
+              imageUrl:
+                  'https://storage.googleapis.com/uxpilot-auth.appspot.com/7f92239b55-3f9634816c4e2de38030.png',
               fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                color: AppColors.neutralLightGray,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.leafGreen,
+                    strokeWidth: 2,
+                  ),
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
+                color: AppColors.neutralLightGray,
+                child: const Icon(
+                  Icons.eco,
+                  color: AppColors.leafGreen,
+                  size: 30,
+                ),
+              ),
             ),
           ),
         ),

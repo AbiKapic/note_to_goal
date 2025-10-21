@@ -4,6 +4,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../services/profile_service.dart';
+import '../../../../shared/models/user_profile_model.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../widgets/account_header.dart';
@@ -13,14 +15,39 @@ class PersonalInfoScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nameController = useTextEditingController(text: 'Sarah Johnson');
-    final emailController = useTextEditingController(text: 'sarah.johnson@email.com');
-    final phoneController = useTextEditingController(text: '+1 (555) 123-4567');
-    final locationController = useTextEditingController(text: 'San Francisco, CA');
-    final bioController = useTextEditingController(text: 'Goal achiever and productivity enthusiast. Love turning dreams into reality!');
-    
+    final currentProfile = useState<UserProfile?>(null);
+    final nameController = useTextEditingController();
+    final emailController = useTextEditingController();
+    final phoneController = useTextEditingController();
+    final locationController = useTextEditingController();
+    final bioController = useTextEditingController();
+
     final isEditing = useState(false);
     final isSaving = useState(false);
+    final isLoading = useState(true);
+
+    Future<void> loadProfile() async {
+      try {
+        final profile = await ProfileService.instance.getCurrentProfile();
+        if (profile != null) {
+          currentProfile.value = profile;
+          nameController.text = profile.name;
+          emailController.text = profile.email;
+          phoneController.text = profile.phoneNumber ?? '';
+          locationController.text = profile.location ?? '';
+          bioController.text = profile.bio ?? '';
+        }
+      } catch (e) {
+        print('Error loading profile: $e');
+      } finally {
+        isLoading.value = false;
+      }
+    }
+
+    useEffect(() {
+      loadProfile();
+      return null;
+    }, []);
 
     void toggleEdit() {
       isEditing.value = !isEditing.value;
@@ -28,35 +55,57 @@ class PersonalInfoScreen extends HookWidget {
 
     Future<void> saveChanges() async {
       if (isSaving.value) return;
-      
+
       isSaving.value = true;
-      
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: AppColors.accentSuccess),
-                const SizedBox(width: 8),
-                Text(
-                  'Profile updated successfully!',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: AppColors.neutralWhite,
-          ),
+
+      try {
+        await ProfileService.instance.updateProfile(
+          name: nameController.text.trim(),
+          phoneNumber: phoneController.text.trim().isEmpty
+              ? null
+              : phoneController.text.trim(),
+          location: locationController.text.trim().isEmpty
+              ? null
+              : locationController.text.trim(),
+          bio: bioController.text.trim().isEmpty
+              ? null
+              : bioController.text.trim(),
         );
-        
-        isEditing.value = false;
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.check_circle, color: AppColors.accentSuccess),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Profile updated successfully!',
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: AppColors.neutralWhite,
+            ),
+          );
+
+          isEditing.value = false;
+          await loadProfile(); // Reload profile to get updated data
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to update profile: $e'),
+              backgroundColor: AppColors.accentError,
+            ),
+          );
+        }
+      } finally {
+        isSaving.value = false;
       }
-      
-      isSaving.value = false;
     }
 
     Widget buildInfoCard({
@@ -142,6 +191,29 @@ class PersonalInfoScreen extends HookWidget {
       );
     }
 
+    if (isLoading.value) {
+      return Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                AppColors.warmYellow,
+                AppColors.softCream,
+                AppColors.leafGreen,
+              ],
+            ),
+          ),
+          child: const SafeArea(
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.leafGreen),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -203,27 +275,47 @@ class PersonalInfoScreen extends HookWidget {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppColors.shadow.withValues(alpha: 0.2),
+                                        color: AppColors.shadow.withValues(
+                                          alpha: 0.2,
+                                        ),
                                         blurRadius: 12,
                                         offset: const Offset(0, 6),
                                       ),
                                     ],
                                   ),
                                   child: ClipOval(
-                                    child: Image.network(
-                                      'https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg',
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          color: AppColors.softCream,
-                                          child: Icon(
-                                            Icons.account_circle,
-                                            size: 60,
-                                            color: AppColors.treeBrown.withValues(alpha: 0.5),
+                                    child:
+                                        currentProfile.value?.profileImageUrl !=
+                                            null
+                                        ? Image.network(
+                                            currentProfile
+                                                .value!
+                                                .profileImageUrl!,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                                  return Container(
+                                                    color: AppColors.softCream,
+                                                    child: Icon(
+                                                      Icons.account_circle,
+                                                      size: 60,
+                                                      color: AppColors.treeBrown
+                                                          .withValues(
+                                                            alpha: 0.5,
+                                                          ),
+                                                    ),
+                                                  );
+                                                },
+                                          )
+                                        : Container(
+                                            color: AppColors.softCream,
+                                            child: Icon(
+                                              Icons.account_circle,
+                                              size: 60,
+                                              color: AppColors.treeBrown
+                                                  .withValues(alpha: 0.5),
+                                            ),
                                           ),
-                                        );
-                                      },
-                                    ),
                                   ),
                                 ),
                                 if (isEditing.value)
@@ -242,14 +334,18 @@ class PersonalInfoScreen extends HookWidget {
                                           height: 40,
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(
-                                              colors: [AppColors.leafGreen, AppColors.treeBrown],
+                                              colors: [
+                                                AppColors.leafGreen,
+                                                AppColors.treeBrown,
+                                              ],
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.shadow.withValues(alpha: 0.3),
+                                                color: AppColors.shadow
+                                                    .withValues(alpha: 0.3),
                                                 blurRadius: 6,
                                                 offset: const Offset(0, 3),
                                               ),
@@ -288,7 +384,7 @@ class PersonalInfoScreen extends HookWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Information fields
                       buildInfoCard(
                         title: 'Full Name',
@@ -316,7 +412,7 @@ class PersonalInfoScreen extends HookWidget {
                         controller: bioController,
                         maxLines: 3,
                       ),
-                      
+
                       if (isEditing.value) ...[
                         const SizedBox(height: 32),
                         AppButton(
@@ -329,13 +425,16 @@ class PersonalInfoScreen extends HookWidget {
                           elevation: 8,
                           foregroundColor: AppColors.textOnBrown,
                           backgroundGradient: const LinearGradient(
-                            colors: [AppColors.leafGreen, AppColors.primaryBrown],
+                            colors: [
+                              AppColors.leafGreen,
+                              AppColors.primaryBrown,
+                            ],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           ),
                         ),
                       ],
-                      
+
                       const SizedBox(height: 40),
                     ],
                   ),

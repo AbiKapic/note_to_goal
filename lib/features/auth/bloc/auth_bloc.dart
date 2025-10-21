@@ -4,6 +4,7 @@ import 'package:note_to_goal/core/bloc/base_state.dart';
 import 'package:note_to_goal/features/auth/bloc/auth_event.dart';
 import 'package:note_to_goal/features/auth/bloc/auth_state.dart';
 import 'package:note_to_goal/services/auth_service.dart';
+import 'package:note_to_goal/services/profile_service.dart';
 import 'package:note_to_goal/shared/constants/app_constants.dart';
 import 'package:note_to_goal/shared/exceptions/handled_exception.dart';
 
@@ -58,6 +59,14 @@ class AuthBloc extends BaseBloc<AuthUser> {
       await _authService.login(email: event.email, password: event.password);
       final me = await _authService.me();
       final user = AuthUser.fromMap(me);
+
+      // Initialize user profile if it doesn't exist
+      await ProfileService.instance.getOrCreateProfile(
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      );
+
       emit(AuthAuthenticated(user));
     } on HandledException catch (error) {
       emit(AuthError(error.message, error: error));
@@ -88,6 +97,7 @@ class AuthBloc extends BaseBloc<AuthUser> {
     emit(AuthLoading());
     try {
       await _authService.logout();
+      await ProfileService.instance.clearProfile();
       emit(const AuthUnauthenticated());
     } on HandledException catch (error) {
       emit(AuthError(error.message, error: error));

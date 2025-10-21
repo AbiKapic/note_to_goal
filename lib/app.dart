@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:note_to_goal/core/theme/app_theme.dart';
-import 'package:note_to_goal/features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:note_to_goal/features/auth/bloc/auth_bloc.dart';
+import 'package:note_to_goal/features/splash/presentation/screens/splash_screen.dart';
 import 'package:note_to_goal/navigations/app_pages.dart';
 import 'package:note_to_goal/services/hive_service.dart';
 import 'package:note_to_goal/shared/widgets/handled_exception_snackbar_overlay.dart';
@@ -34,17 +36,20 @@ class App extends StatelessWidget {
       future: HiveService.init(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return MaterialApp(
-            title: 'Note to Goal',
-            builder: (context, child) => HandledExceptionSnackbarOverlay(
-              child: child ?? const SizedBox.shrink(),
+          return BlocProvider<AuthBloc>(
+            create: (_) => AuthBloc(),
+            child: MaterialApp(
+              title: 'Note to Goal',
+              builder: (context, child) => HandledExceptionSnackbarOverlay(
+                child: child ?? const SizedBox.shrink(),
+              ),
+              home: const SplashScreen(),
+              routes: AppPages.routes,
+              onGenerateRoute: AppPages.createRoute,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: ThemeMode.system,
             ),
-            home: const OnboardingScreen(),
-            routes: AppPages.routes,
-            onGenerateRoute: AppPages.createRoute,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: ThemeMode.system,
           );
         } else {
           return const MaterialApp(
